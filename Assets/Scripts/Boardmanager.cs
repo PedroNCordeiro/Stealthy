@@ -2,15 +2,50 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Boardmanager : MonoBehaviour {
+public class BoardManager : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+	public bool autoUpdate;
+	public int boardWidth = 8;
+	public int boardHeight = 8;
+
+	public GameObject topLeftWall;
+	public GameObject topRightWall;
+	public GameObject bottomLeftWall;
+	public GameObject bottomRightWall;
+	public GameObject topWall;
+	public GameObject bottomWall;
+	public GameObject leftWall;
+	public GameObject rightWall;
+	public GameObject floor;
+
+	private Transform boardHolder;
+
+	public void SetupBoard()
+	{
+		GameObject board = new GameObject ("New Board");
+		board.transform.position = Vector3.zero;
+		//boardHolder = board.transform;
+
+		for (int y = 0; y < boardHeight; y++) {
+			for (int x = 0; x < boardWidth; x++) {
+				GameObject toInstantiate = floor;
+				if (x == 0) {
+					toInstantiate = (y == 0) ? bottomLeftWall : (y == boardHeight -1) ? topLeftWall : leftWall;
+				}
+				else if (x == boardWidth -1) {
+					toInstantiate = (y == 0) ? bottomRightWall : (y == boardHeight -1) ? topRightWall : rightWall;
+				}
+				else if (y == 0) {
+					toInstantiate = bottomWall;
+				}
+				else if (y == boardHeight - 1) {
+					toInstantiate = topWall;
+				}
+
+				GameObject instance = Instantiate (toInstantiate, new Vector3 (x, y), Quaternion.identity) as GameObject;
+				instance.transform.SetParent (board.transform);
+			}
+		}
+
 	}
 }
