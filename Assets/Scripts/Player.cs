@@ -49,6 +49,14 @@ public class Player : MonoBehaviour {
 		}
 	}
 
+	private void OnTriggerEnter2D(Collider2D other)
+	{
+		// Check if GameOver
+		if (other.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
+			Destroy (gameObject);
+		}
+	}
+
 	// Update is called once per frame
 	void Update () {
 
@@ -67,5 +75,6 @@ public class Player : MonoBehaviour {
 		if ((horizontal != 0 || vertical != 0) && endedTurn) {
 			Move (horizontal, vertical, out hit);
 		}
+
 	}
 }

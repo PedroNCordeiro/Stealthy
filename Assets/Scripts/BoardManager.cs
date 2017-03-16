@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour {
 
+	public static BoardManager singleton;
 	public bool autoUpdate;
 	public int boardWidth = 8;
 	public int boardHeight = 8;
@@ -22,6 +23,19 @@ public class BoardManager : MonoBehaviour {
 
 	private Transform boardHolder;
 
+
+	void Awake()
+	{
+		if (singleton == null) {
+			singleton = this;
+		} else if (singleton != this) {
+			Destroy (gameObject);
+		}
+
+		DontDestroyOnLoad (gameObject);
+
+		SetupBoard ();
+	}
 
 	public void SetupBoard()
 	{
@@ -49,7 +63,7 @@ public class BoardManager : MonoBehaviour {
 		}
 		GameObject exitInstance = Instantiate (exit, new Vector3 (boardWidth - 2, boardHeight - 2), Quaternion.identity) as GameObject;
 		exitInstance.transform.SetParent (boardHolder);
-		GameObject enemyInstance = Instantiate (enemy, new Vector3 (2, 2), Quaternion.identity) as GameObject;
+		GameObject enemyInstance = Instantiate (enemy, new Vector3 (2, 6), Quaternion.identity) as GameObject;
 		enemyInstance.transform.SetParent (boardHolder);
 	}
 }

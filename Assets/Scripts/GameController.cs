@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameController : MonoBehaviour {
 
 	public static GameController singleton;
-	public BoardManager boardManager;
+	public GameObject boardManager;
 
 	void Awake () {
 		if (singleton == null) {
@@ -17,14 +17,11 @@ public class GameController : MonoBehaviour {
 		DontDestroyOnLoad (gameObject);
 		InitGame ();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 	public void InitGame()
 	{
-		boardManager.SetupBoard ();
+		if (BoardManager.singleton == null) {
+			Instantiate(boardManager);
+		}
 	}
 }
