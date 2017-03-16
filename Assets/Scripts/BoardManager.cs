@@ -17,6 +17,8 @@ public class BoardManager : MonoBehaviour {
 	public GameObject leftWall;
 	public GameObject rightWall;
 	public GameObject floor;
+	public GameObject exit;
+	public GameObject enemy;
 
 	private Transform boardHolder;
 
@@ -45,6 +47,9 @@ public class BoardManager : MonoBehaviour {
 				instance.transform.SetParent (boardHolder);
 			}
 		}
-
+		GameObject exitInstance = Instantiate (exit, new Vector3 (boardWidth - 2, boardHeight - 2), Quaternion.identity) as GameObject;
+		exitInstance.transform.SetParent (boardHolder);
+		GameObject enemyInstance = Instantiate (enemy, new Vector3 (2, 2), Quaternion.identity) as GameObject;
+		enemyInstance.transform.SetParent (boardHolder);
 	}
 }
