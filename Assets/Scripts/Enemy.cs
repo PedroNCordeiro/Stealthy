@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour {
+public class Enemy : MovingObject {
 
-	public int visionDistance = 2;
+	public int visionDistance = 4;
 	public LayerMask floorLayerMask;
 
-	private BoxCollider2D boxCollider;
 
 	private void ChangeFloorTags(Vector2 currentPosition)
 	{
@@ -22,14 +21,9 @@ public class Enemy : MonoBehaviour {
 	}
 
 	// Use this for initialization
-	void Start () {
-		boxCollider = GetComponent<BoxCollider2D> ();
+	protected override void Start () {
+		base.Start ();
 
 		ChangeFloorTags (transform.position);
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
 	}
 }
