@@ -20,11 +20,10 @@ public class BoardManager : MonoBehaviour {
 
 	private Transform boardHolder;
 
+
 	public void SetupBoard()
 	{
-		GameObject board = new GameObject ("New Board");
-		board.transform.position = Vector3.zero;
-		//boardHolder = board.transform;
+		boardHolder = new GameObject("Board").transform;
 
 		for (int y = 0; y < boardHeight; y++) {
 			for (int x = 0; x < boardWidth; x++) {
@@ -43,7 +42,7 @@ public class BoardManager : MonoBehaviour {
 				}
 
 				GameObject instance = Instantiate (toInstantiate, new Vector3 (x, y), Quaternion.identity) as GameObject;
-				instance.transform.SetParent (board.transform);
+				instance.transform.SetParent (boardHolder);
 			}
 		}
 
