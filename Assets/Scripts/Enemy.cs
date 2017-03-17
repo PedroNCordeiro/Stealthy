@@ -23,6 +23,7 @@ public class Enemy : MovingObject {
 			}
 
 			hit.transform.gameObject.layer = LayerMask.NameToLayer ("DangerFloor");
+			hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.cyan;
 		}
 		boxCollider.enabled = true;
 	}
