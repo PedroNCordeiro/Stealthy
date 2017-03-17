@@ -63,7 +63,6 @@ public class BoardManager : MonoBehaviour {
 		}
 		GameObject exitInstance = Instantiate (exit, new Vector3 (boardWidth - 2, boardHeight - 2), Quaternion.identity) as GameObject;
 		exitInstance.transform.SetParent (boardHolder);
-		GameObject enemyInstance = Instantiate (enemy, new Vector3 (2, 6), Quaternion.identity) as GameObject;
-		enemyInstance.transform.SetParent (boardHolder);
+		Instantiate (enemy, new Vector3 (2, 6), Quaternion.identity);
 	}
 }

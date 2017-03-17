@@ -9,6 +9,8 @@ public class MovingObject : MonoBehaviour {
 
 	protected BoxCollider2D boxCollider;
 	protected bool endedMove = true;
+	protected int horizontal = 0;
+	protected int vertical = 0;
 
 	private Rigidbody2D rb2D;
 
