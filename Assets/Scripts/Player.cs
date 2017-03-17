@@ -27,7 +27,7 @@ public class Player : MovingObject {
 
 		RaycastHit2D hit;
 
-		if (horizontal != 0 || vertical != 0) {
+		if ((horizontal != 0 || vertical != 0) && endedMove) {
 			Move (horizontal, vertical, out hit);
 		}
 

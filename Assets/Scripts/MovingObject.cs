@@ -8,6 +8,8 @@ public class MovingObject : MonoBehaviour {
 	public LayerMask blockingLayer;
 
 	protected BoxCollider2D boxCollider;
+	protected bool endedMove = true;
+
 	private Rigidbody2D rb2D;
 
 	private float inverseMoveTime;
@@ -15,6 +17,7 @@ public class MovingObject : MonoBehaviour {
 
 	private IEnumerator SmoothMovement(Vector3 end)
 	{
+		endedMove = false;
 		float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
 
 		while (sqrRemainingDistance > float.Epsilon) {
@@ -24,6 +27,7 @@ public class MovingObject : MonoBehaviour {
 			sqrRemainingDistance = (transform.position - end).sqrMagnitude;
 			yield return null;
 		}
+		endedMove = true;
 	}
 
 	protected void Move (int xDir, int yDir, out RaycastHit2D hit)
