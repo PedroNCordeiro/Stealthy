@@ -5,19 +5,23 @@ using UnityEngine;
 public class Enemy : MovingObject {
 
 	public int visionDistance;
-	public LayerMask safeLayerMask;
-	public LayerMask dangerousLayerMask;
 
 	// The enemy will look at his surroundings
 	// In practice, this will change the layer masks of all non-blocking objects within its vision to 'DangerFloor'
 	private void CheckVision(int horizontal, int vertical)
 	{
+		if (visionDistance <= 0) {
+			return;
+		}
+
 		RaycastHit2D hit;
+		Vector2 origin = new Vector2 (transform.position.x + horizontal, transform.position.y + vertical); 
 
 		boxCollider.enabled = false;
-		for (int i = 0; i <= visionDistance; i++) {
-			Vector2 endPosition = new Vector2 (transform.position.x, transform.position.y - i);
-			hit = Physics2D.Linecast (transform.position, endPosition, safeLayerMask);
+		for (int i = 0; i < visionDistance; i++) {
+			Vector2 endPosition = new Vector2 (origin.x + horizontal, origin.y + vertical);
+			hit = Physics2D.Linecast (origin, endPosition);
+			origin = endPosition;
 
 			if (hit.transform.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
 				return;
@@ -29,40 +33,43 @@ public class Enemy : MovingObject {
 		boxCollider.enabled = true;
 	}
 		
-	private void VisionWhileMoving(int horizontal, int vertical)
+	// Enemy vision is updated when he finishes moving
+	// Looks 1 floor further
+	private IEnumerator VisionWhileMoving(int horizontal, int vertical)
 	{
+		while (!endedMove) {
+			yield return new WaitForSeconds (0.1f);
+		}
+			
 		RaycastHit2D hit;
 
 		boxCollider.enabled = false;
 
+		// The floor tile below the player is not dangerous anymore
+		// We will put its layer mask to 'Floor' again
+		hit = Physics2D.Linecast (transform.position, new Vector2(transform.position.x + horizontal, transform.position.y + vertical));
+		if (hit.transform == null) {
+			Debug.Log ("hit transform is null");
+			yield break;
+		}
+		hit.transform.gameObject.layer = LayerMask.NameToLayer ("Floor");
+		hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
+
 
 		// Add a new floor tile to the enemy vision
 		Vector2 newFloorInVision = new Vector2 (transform.position.x + (horizontal * visionDistance), transform.position.y + (vertical * visionDistance));
-		hit = Physics2D.Linecast (transform.position, newFloorInVision, safeLayerMask);
+		hit = Physics2D.Linecast (newFloorInVision, new Vector2(newFloorInVision.x + horizontal, newFloorInVision.y + vertical));
 
 		if (hit.transform == null) {
-			return;
+			yield break;
 		}
 
 		else if (hit.transform.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
-			return;
+			yield break;
 		}
 
 		hit.transform.gameObject.layer = LayerMask.NameToLayer ("DangerFloor");
 		hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.cyan;
-
-
-
-
-		// The floor tile behind the player is not dangerous anymore
-		// We will put its layer mask to 'Floor' again
-		Vector2 floorBehind = new Vector2 (transform.position.x - horizontal, transform.position.y - vertical);
-		hit = Physics2D.Linecast (transform.position, floorBehind, dangerousLayerMask);
-		if (hit.transform == null) {
-			return;
-		}
-		hit.transform.gameObject.layer = LayerMask.NameToLayer ("Floor");
-		hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.red;
 
 
 		boxCollider.enabled = true;
@@ -72,11 +79,14 @@ public class Enemy : MovingObject {
 	{
 		RaycastHit2D hit;
 		vertical = -1;
-		if (endedMove) {
-			Move (horizontal, vertical, out hit);
 
+		if (endedMove) {
+			endedMove = false;
+			Move (horizontal, vertical, out hit);
+		}
+		if (visionDistance > 0) {
 			// Add 1 floor to enemy vision radius
-			VisionWhileMoving(horizontal, vertical);
+			StartCoroutine (VisionWhileMoving (horizontal, vertical));
 		}
 	}
 
@@ -85,6 +95,7 @@ public class Enemy : MovingObject {
 		base.Start ();
 
 		vertical = -1;
+
 		CheckVision (horizontal, vertical);
 	}
 

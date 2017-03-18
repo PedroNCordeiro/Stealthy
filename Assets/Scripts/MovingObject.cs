@@ -19,7 +19,7 @@ public class MovingObject : MonoBehaviour {
 
 	private IEnumerator SmoothMovement(Vector3 end)
 	{
-		endedMove = false;
+		//endedMove = false;
 		float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
 
 		while (sqrRemainingDistance > float.Epsilon) {
@@ -35,7 +35,7 @@ public class MovingObject : MonoBehaviour {
 	protected void Move (int xDir, int yDir, out RaycastHit2D hit)
 	{
 		Vector2 start = transform.position;
-		Vector2 end = start + new Vector2(xDir, yDir);
+		Vector2 end = start + new Vector2 (xDir, yDir);
 
 		boxCollider.enabled = false;
 		hit = Physics2D.Linecast (start, end, blockingLayer);
