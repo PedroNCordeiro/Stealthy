@@ -33,7 +33,6 @@ public class MovingObject : MonoBehaviour {
 
 	protected bool Move (int xDir, int yDir, out RaycastHit2D hit)
 	{
-		Debug.Log ("Move inicio");
 		Vector2 start = transform.position;
 		Vector2 end = start + new Vector2 (xDir, yDir);
 
@@ -43,7 +42,6 @@ public class MovingObject : MonoBehaviour {
 
 		if (hit.transform == null) {
 			StartCoroutine (SmoothMovement (end));
-			Debug.Log ("Move fim");
 			return true;
 		}
 		return false;
