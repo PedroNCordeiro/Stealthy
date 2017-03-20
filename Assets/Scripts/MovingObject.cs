@@ -17,9 +17,8 @@ public class MovingObject : MonoBehaviour {
 	private float inverseMoveTime;
 
 
-	private IEnumerator SmoothMovement(Vector3 end)
+	protected virtual IEnumerator SmoothMovement(Vector3 end)
 	{
-		//endedMove = false;
 		float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
 
 		while (sqrRemainingDistance > float.Epsilon) {
@@ -32,8 +31,9 @@ public class MovingObject : MonoBehaviour {
 		endedMove = true;
 	}
 
-	protected void Move (int xDir, int yDir, out RaycastHit2D hit)
+	protected bool Move (int xDir, int yDir, out RaycastHit2D hit)
 	{
+		Debug.Log ("Move inicio");
 		Vector2 start = transform.position;
 		Vector2 end = start + new Vector2 (xDir, yDir);
 
@@ -43,7 +43,10 @@ public class MovingObject : MonoBehaviour {
 
 		if (hit.transform == null) {
 			StartCoroutine (SmoothMovement (end));
+			Debug.Log ("Move fim");
+			return true;
 		}
+		return false;
 	}
 
 	// Use this for initialization

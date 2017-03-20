@@ -6,6 +6,7 @@ public class Enemy : MovingObject {
 
 	public int visionDistance;
 
+
 	// The enemy will look at his surroundings
 	// In practice, this will change the layer masks of all non-blocking objects within its vision to 'DangerFloor'
 	private void CheckVision(int horizontal, int vertical)
@@ -36,11 +37,8 @@ public class Enemy : MovingObject {
 	// Enemy vision is updated when he finishes moving
 	// Looks 1 floor further
 	private IEnumerator VisionWhileMoving(int horizontal, int vertical)
-	{
-		while (!endedMove) {
-			yield return new WaitForSeconds (0.1f);
-		}
-			
+	{		
+		Debug.Log ("VisionWhileMoving inicio 2");
 		RaycastHit2D hit;
 
 		boxCollider.enabled = false;
@@ -73,6 +71,13 @@ public class Enemy : MovingObject {
 
 
 		boxCollider.enabled = true;
+		Debug.Log ("VisionWhileMoving fim");
+	}
+
+	protected override IEnumerator SmoothMovement(Vector3 end)
+	{
+		yield return StartCoroutine (base.SmoothMovement (end));
+		yield return StartCoroutine (VisionWhileMoving (horizontal, vertical));
 	}
 
 	private void Patrol()
@@ -80,14 +85,8 @@ public class Enemy : MovingObject {
 		RaycastHit2D hit;
 		vertical = -1;
 
-		if (endedMove) {
-			endedMove = false;
-			Move (horizontal, vertical, out hit);
-		}
-		if (visionDistance > 0) {
-			// Add 1 floor to enemy vision radius
-			StartCoroutine (VisionWhileMoving (horizontal, vertical));
-		}
+		Move (horizontal, vertical, out hit);
+		Debug.Log ("On Patrol funcion");
 	}
 
 	// Use this for initialization
@@ -101,6 +100,9 @@ public class Enemy : MovingObject {
 
 	void Update()
 	{
-		Patrol ();
+		if (endedMove) {
+			endedMove = false;
+			Patrol ();
+		}
 	}
 }
