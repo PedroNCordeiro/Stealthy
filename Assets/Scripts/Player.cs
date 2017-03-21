@@ -22,9 +22,19 @@ public class Player : MovingObject {
 			vertical = 0;
 		}
 
+		if (horizontal != 0 || vertical != 0) {
+			MovePlayer ();
+		}
+
+	}
+
+	// The player will try to move if there is not a blocking object in the way
+	// If thhere is, and it is a crate, he will push it
+	private void MovePlayer()
+	{
 		RaycastHit2D hit;
 
-		if ((horizontal != 0 || vertical != 0) && endedMove) {
+		if (endedMove) {
 			endedMove = false;
 			if (!Move (horizontal, vertical, out hit)) {
 				// Did we hit a blocking object?
@@ -40,27 +50,12 @@ public class Player : MovingObject {
 				endedMove = true;
 			}
 		}
-
 	}
 		
-	private void OnCollisionEnter2D(Collision2D coll)
-	{
-		if (coll.gameObject.tag == "BlockingObject") {
-			// Kinematic rigidbodyes are not to be considered
-			if (coll.rigidbody == null || coll.rigidbody.isKinematic) {
-				return;
-			}
-			coll.rigidbody.velocity = new Vector2(horizontal, vertical);
-		}
-	}
-
 	private void OnTriggerEnter2D(Collider2D other)
 	{
 		otherCollider = other;
 
-		if (other.gameObject.tag == "BlockingObject") {
-			Debug.Log ("Found crate!");
-		}
 		// Check if GameOver
 		if (other.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
 			Die ();
