@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour {
 
+	private Enemy enemy;
+	private Player player;
+
+
 	public static GameController singleton;
 	public GameObject boardManager;
 
@@ -16,6 +20,7 @@ public class GameController : MonoBehaviour {
 
 		DontDestroyOnLoad (gameObject);
 		InitGame ();
+
 	}
 
 	public void InitGame()
@@ -23,5 +28,20 @@ public class GameController : MonoBehaviour {
 		if (BoardManager.singleton == null) {
 			Instantiate(boardManager);
 		}
+	}
+
+	public void AddEnemy(Enemy script)
+	{
+		this.enemy = script;
+	}
+
+	public void AddPlayer(Player script)
+	{
+		this.player = script;
+	}
+
+	public void GameOver()
+	{
+		player.Die ();
 	}
 }

@@ -4,12 +4,23 @@ using UnityEngine;
 
 public class Player : MovingObject {
 
+	public void Die()
+	{
+		Destroy (gameObject);
+	}
+
 	private void OnTriggerEnter2D(Collider2D other)
 	{
 		// Check if GameOver
 		if (other.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
-			Destroy (gameObject);
+			Die ();
 		}
+	}
+
+	protected override void Start ()
+	{
+			base.Start ();
+			GameController.singleton.AddPlayer (this);
 	}
 
 	// Update is called once per frame

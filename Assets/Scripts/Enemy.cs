@@ -9,13 +9,20 @@ public class Enemy : MovingObject {
 	public int visionDistance;
 
 	// Checks if there is a blocking object on enemy's sight
+	// Also specifically checks if that blocking object is the player
+	// If so, it'll be Game Over
 	private bool BlockingObjectInVision(RaycastHit2D[] hits)
 	{
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
 				return false;
 			} else if (hits [i].transform.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
+				Debug.Log ("Found a blocking object");
 				blockingObjectPosition = new Vector2 (hits [i].transform.position.x, hits [i].transform.position.y);
+				if (hits [i].transform.gameObject.tag == "Player") {
+					Debug.Log ("And its the player!");
+					GameController.singleton.GameOver ();
+				}
 				return true;
 			}
 		}
@@ -127,6 +134,7 @@ public class Enemy : MovingObject {
 	// Use this for initialization
 	protected override void Start () {
 		base.Start ();
+		GameController.singleton.AddEnemy (this);
 
 		horizontal = 1;
 
