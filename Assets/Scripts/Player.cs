@@ -4,18 +4,7 @@ using UnityEngine;
 
 public class Player : MovingObject {
 
-	public void Die()
-	{
-		Destroy (gameObject);
-	}
-
-	private void OnTriggerEnter2D(Collider2D other)
-	{
-		// Check if GameOver
-		if (other.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
-			Die ();
-		}
-	}
+	public Collider2D otherCollider;
 
 	protected override void Start ()
 	{
@@ -37,8 +26,50 @@ public class Player : MovingObject {
 
 		if ((horizontal != 0 || vertical != 0) && endedMove) {
 			endedMove = false;
-			Move (horizontal, vertical, out hit);
+			if (!Move (horizontal, vertical, out hit)) {
+				// Did we hit a blocking object?
+				if (hit.transform.gameObject.tag == "BlockingObject") {
+					Crate crate = hit.transform.GetComponent<Crate>() as Crate;
+					if (crate.endedMove) {
+						crate.endedMove = false;
+						if (!crate.Move (horizontal, vertical, out hit)) {
+							crate.endedMove = true;
+						}
+					}
+				}
+				endedMove = true;
+			}
 		}
 
 	}
+		
+	private void OnCollisionEnter2D(Collision2D coll)
+	{
+		if (coll.gameObject.tag == "BlockingObject") {
+			// Kinematic rigidbodyes are not to be considered
+			if (coll.rigidbody == null || coll.rigidbody.isKinematic) {
+				return;
+			}
+			coll.rigidbody.velocity = new Vector2(horizontal, vertical);
+		}
+	}
+
+	private void OnTriggerEnter2D(Collider2D other)
+	{
+		otherCollider = other;
+
+		if (other.gameObject.tag == "BlockingObject") {
+			Debug.Log ("Found crate!");
+		}
+		// Check if GameOver
+		if (other.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
+			Die ();
+		}
+	}
+
+	public void Die()
+	{
+		Destroy (gameObject);
+	}
+
 }

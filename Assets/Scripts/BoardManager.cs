@@ -20,6 +20,7 @@ public class BoardManager : MonoBehaviour {
 	public GameObject floor;
 	public GameObject exit;
 	public GameObject enemy;
+	public GameObject crate;
 
 	private Transform boardHolder;
 
@@ -63,6 +64,8 @@ public class BoardManager : MonoBehaviour {
 		}
 		GameObject exitInstance = Instantiate (exit, new Vector3 (boardWidth - 2, boardHeight - 2), Quaternion.identity) as GameObject;
 		exitInstance.transform.SetParent (boardHolder);
-		Instantiate (enemy, new Vector3 (1, 5), Quaternion.identity);
+
+		Instantiate (crate, new Vector3 (2, 6), Quaternion.identity);
+		Instantiate (enemy, new Vector3 (6, 6), Quaternion.identity);
 	}
 }

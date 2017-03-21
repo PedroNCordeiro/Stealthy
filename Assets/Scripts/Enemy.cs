@@ -8,6 +8,17 @@ public class Enemy : MovingObject {
 
 	public int visionDistance;
 
+
+	// Use this for initialization
+	protected override void Start () {
+		base.Start ();
+		GameController.singleton.AddEnemy (this);
+
+		horizontal = 1;
+
+		Look(horizontal, vertical);
+	}
+		
 	// Checks if there is a blocking object on enemy's sight
 	// Also specifically checks if that blocking object is the player
 	// If so, it'll be Game Over
@@ -119,7 +130,7 @@ public class Enemy : MovingObject {
 		// We flag endedMove so that the enemy continues patrolling given the new direction
 		endedMove = true;
 	}
-		
+
 	public void Patrol()
 	{
 		RaycastHit2D hit;
@@ -127,16 +138,6 @@ public class Enemy : MovingObject {
 		if (!Move (horizontal, vertical, out hit)) {
 			ChangePatrolDirection (horizontal, vertical);
 		}
-	}
-
-	// Use this for initialization
-	protected override void Start () {
-		base.Start ();
-		GameController.singleton.AddEnemy (this);
-
-		horizontal = 1;
-
-		Look(horizontal, vertical);
 	}
 
 }
