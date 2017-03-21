@@ -22,7 +22,7 @@ public class Enemy : MovingObject {
 		return false;
 	}
 
-	// All objects in enemy's sight will change their layer to 'DangerousLayer'
+	// All objects hit by the input RaycastHit array will change their layer to 'DangerousLayer'
 	private void MarkObjectsAsDangerous(RaycastHit2D[] hits)
 	{
 		for (int i = 0; i < hits.Length; i++) {
@@ -31,15 +31,8 @@ public class Enemy : MovingObject {
 		}
 	}
 
-	private void CheckObjectsWithinVision(out RaycastHit2D[] hits)
-	{
-		float distance = visionDistance - 1;
-		Vector2 origin = new Vector2 ((transform.position.x + horizontal), (transform.position.y + vertical));
-		Vector2 direction = new Vector2 (horizontal, vertical);
-
-		hits = Physics2D.RaycastAll (origin, direction, distance);
-	}
-
+	// Floor below the enemy will change its layer from 'DangerousFloor' to 'Floor'
+	// Since it is no longer seen by him
 	private void UpdateFloorBelow(Vector2 floorPosition, out RaycastHit2D[] hits)
 	{
 		Vector2 direction = new Vector2 (horizontal, vertical);
@@ -62,34 +55,19 @@ public class Enemy : MovingObject {
 	{		
 		RaycastHit2D[] hits;
 
-		boxCollider.enabled = false;
-
 		Vector2 origin = new Vector2 ((transform.position.x), (transform.position.y));
 		Vector2 direction = new Vector2 (horizontal, vertical);
 
 		// Firstly, we will remove the floor below the enemy as DangerFloor
 		// Since the enemy can no longer see it
-		//UpdateFloorBelow(origin, out hits);
-
-		hits = Physics2D.RaycastAll (origin, direction, 0);
-
-		for (int i = 0; i < hits.Length; i++) {
-			if (hits [i].transform == null) {
-				break;
-			}
-			hits[i].transform.gameObject.layer = LayerMask.NameToLayer ("Floor");
-			hits[i].transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
-		}
-
+		boxCollider.enabled = false;
+		UpdateFloorBelow(origin, out hits);
 		boxCollider.enabled = true;
 
 
 		// Then we'll want to check all objects within his vision range
-		//CheckObjectsWithinVision(out hits);
 		float distance = visionDistance - 1;
 		origin = new Vector2 ((transform.position.x + horizontal), (transform.position.y + vertical));
-		direction = new Vector2 (horizontal, vertical);
-
 		hits = Physics2D.RaycastAll (origin, direction, distance);
 
 
