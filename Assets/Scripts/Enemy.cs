@@ -17,10 +17,8 @@ public class Enemy : MovingObject {
 			if (hits [i].transform == null) {
 				return false;
 			} else if (hits [i].transform.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
-				Debug.Log ("Found a blocking object");
 				blockingObjectPosition = new Vector2 (hits [i].transform.position.x, hits [i].transform.position.y);
 				if (hits [i].transform.gameObject.tag == "Player") {
-					Debug.Log ("And its the player!");
 					GameController.singleton.GameOver ();
 				}
 				return true;
@@ -122,7 +120,7 @@ public class Enemy : MovingObject {
 		endedMove = true;
 	}
 		
-	private void Patrol()
+	public void Patrol()
 	{
 		RaycastHit2D hit;
 
@@ -141,11 +139,4 @@ public class Enemy : MovingObject {
 		Look(horizontal, vertical);
 	}
 
-	void Update()
-	{
-		if (endedMove) {
-			endedMove = false;
-			Patrol ();
-		}
-	}
 }

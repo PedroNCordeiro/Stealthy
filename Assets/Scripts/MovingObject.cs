@@ -6,9 +6,10 @@ public class MovingObject : MonoBehaviour {
 
 	public float moveTime = 0.1f;
 	public LayerMask blockingLayer;
+	[HideInInspector]
+	public bool endedMove = true;
 
 	protected BoxCollider2D boxCollider;
-	protected bool endedMove = true;
 	protected int horizontal = 0;
 	protected int vertical = 0;
 

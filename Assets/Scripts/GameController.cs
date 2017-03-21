@@ -20,7 +20,6 @@ public class GameController : MonoBehaviour {
 
 		DontDestroyOnLoad (gameObject);
 		InitGame ();
-
 	}
 
 	public void InitGame()
@@ -43,5 +42,13 @@ public class GameController : MonoBehaviour {
 	public void GameOver()
 	{
 		player.Die ();
+	}
+
+	void Update()
+	{
+		if (enemy.endedMove) {
+			enemy.endedMove = false;
+			enemy.Patrol ();
+		}
 	}
 }
