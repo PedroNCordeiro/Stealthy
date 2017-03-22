@@ -48,6 +48,7 @@ public class MovingObject : MonoBehaviour {
 
 	public bool Move (int xDir, int yDir, out RaycastHit2D hit)
 	{
+		endedMove = false;
 		Vector2 start = transform.position;
 		Vector2 end = start + new Vector2 (xDir, yDir);
 
@@ -61,6 +62,7 @@ public class MovingObject : MonoBehaviour {
 			StartCoroutine (SmoothMovementCoRoutine);
 			return true;
 		}
+		endedMove = true;
 		return false;
 	}
 

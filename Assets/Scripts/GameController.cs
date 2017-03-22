@@ -25,7 +25,6 @@ public class GameController : MonoBehaviour {
 	void Update()
 	{
 		if (enemy.endedMove) {
-			enemy.endedMove = false;
 			enemy.Patrol ();
 		}
 	}

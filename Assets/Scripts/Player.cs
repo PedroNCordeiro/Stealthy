@@ -38,19 +38,14 @@ public class Player : MovingObject {
 		RaycastHit2D hit;
 
 		if (endedMove) {
-			endedMove = false;
 			if (!Move (horizontal, vertical, out hit)) {
 				// Did we hit a blocking object?
 				if (hit.transform.gameObject.tag == "BlockingObject") {
 					Crate crate = hit.transform.GetComponent<Crate>() as Crate;
 					if (crate.endedMove) {
-						crate.endedMove = false;
-						if (!crate.Move (horizontal, vertical, out hit)) {
-							crate.endedMove = true;
-						}
+						crate.Move (horizontal, vertical, out hit);
 					}
 				}
-				endedMove = true;
 			}
 		}
 	}
@@ -68,13 +63,14 @@ public class Player : MovingObject {
 		} else if (other.gameObject.tag == "Potion") {
 			Destroy (other.gameObject);
 			isInvisible = true;
-			StartCoroutine (RemainInvisible ());
+			StartCoroutine (RemainInvisible (potionOfInvisilibityDuration));
 		}
 	}
 
-	private IEnumerator RemainInvisible()
+	// Make the player invisible for a given duration
+	private IEnumerator RemainInvisible(float duration)
 	{
-		invisibilityTime = potionOfInvisilibityDuration;
+		invisibilityTime = duration;
 		while (invisibilityTime > float.Epsilon) {
 			invisibilityTime -= Time.deltaTime;
 			yield return null;

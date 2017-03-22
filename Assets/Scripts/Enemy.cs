@@ -164,9 +164,6 @@ public class Enemy : MovingObject {
 		}
 
 		Look(this.horizontal, this.vertical);
-
-		// We flag endedMove so that the enemy continues patrolling given the new direction
-		endedMove = true;
 	}
 
 	public void Patrol()
