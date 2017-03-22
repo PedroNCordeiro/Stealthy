@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {
 
@@ -20,7 +21,6 @@ public class GameController : MonoBehaviour {
 		}
 
 		DontDestroyOnLoad (gameObject);
-		InitGame ();
 	}
 
 	void Update()
@@ -29,13 +29,6 @@ public class GameController : MonoBehaviour {
 			enemy.Patrol ();
 		} else {
 			StartCoroutine (enemy.Look (-1, 0));
-		}
-	}
-
-	public void InitGame()
-	{
-		if (BoardManager.singleton == null) {
-			Instantiate(boardManager);
 		}
 	}
 
@@ -52,6 +45,12 @@ public class GameController : MonoBehaviour {
 	public bool isPlayerInvisible()
 	{
 		return player.isInvisible;
+	}
+
+	// Advances the game for the next level
+	public void NextLevel()
+	{
+		SceneManager.LoadScene (1);
 	}
 
 	public void GameOver()

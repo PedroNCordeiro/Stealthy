@@ -55,8 +55,9 @@ public class Player : MovingObject {
 		if (other.gameObject.tag == "Enemy") {
 			StopCoroutine (SmoothMovementCoRoutine);
 			StartCoroutine (SmoothMovementBackCoRoutine);
+		} else if (other.gameObject.tag == "Finish") {
+			GameController.singleton.NextLevel ();
 		}
-
 		// Check if GameOver
 		else if (other.gameObject.layer == LayerMask.NameToLayer ("DangerFloor") && !isInvisible) {
 			Die ();

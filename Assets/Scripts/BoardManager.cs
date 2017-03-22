@@ -6,8 +6,8 @@ public class BoardManager : MonoBehaviour {
 
 	public static BoardManager singleton;
 	public bool autoUpdate;
-	public int boardWidth = 8;
-	public int boardHeight = 8;
+	public int boardWidth = 20;
+	public int boardHeight = 20;
 
 	public GameObject topLeftWall;
 	public GameObject topRightWall;
@@ -28,14 +28,6 @@ public class BoardManager : MonoBehaviour {
 
 	void Awake()
 	{
-		if (singleton == null) {
-			singleton = this;
-		} else if (singleton != this) {
-			Destroy (gameObject);
-		}
-
-		DontDestroyOnLoad (gameObject);
-
 		SetupBoard ();
 	}
 
@@ -66,8 +58,13 @@ public class BoardManager : MonoBehaviour {
 		GameObject exitInstance = Instantiate (exit, new Vector3 (boardWidth - 2, boardHeight - 2), Quaternion.identity) as GameObject;
 		exitInstance.transform.SetParent (boardHolder);
 
-		Instantiate (crate, new Vector3 (2, 6), Quaternion.identity);
-		Instantiate (enemy, new Vector3 (6, 6), Quaternion.identity);
-		Instantiate (potion, new Vector3 (2, 2), Quaternion.identity);
+		GameObject crateInstance = Instantiate (crate, new Vector3 (2, 6), Quaternion.identity) as GameObject;
+		crateInstance.transform.SetParent (boardHolder);
+
+		GameObject potionInstance = Instantiate (potion, new Vector3 (2, 2), Quaternion.identity) as GameObject;
+		potionInstance.transform.SetParent (boardHolder);
+
+		GameObject enemyInstance = Instantiate (enemy, new Vector3 (3, 1), Quaternion.identity) as GameObject;
+		enemyInstance.transform.SetParent (boardHolder);
 	}
 }
