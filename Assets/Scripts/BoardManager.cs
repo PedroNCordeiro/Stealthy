@@ -21,6 +21,7 @@ public class BoardManager : MonoBehaviour {
 	public GameObject exit;
 	public GameObject enemy;
 	public GameObject crate;
+	public GameObject potion;
 
 	private Transform boardHolder;
 
@@ -67,5 +68,6 @@ public class BoardManager : MonoBehaviour {
 
 		Instantiate (crate, new Vector3 (2, 6), Quaternion.identity);
 		Instantiate (enemy, new Vector3 (6, 6), Quaternion.identity);
+		Instantiate (potion, new Vector3 (2, 2), Quaternion.identity);
 	}
 }

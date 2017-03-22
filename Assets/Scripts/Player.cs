@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class Player : MovingObject {
 
-	public Collider2D otherCollider;
+	[Range(1f, float.MaxValue)]
+	public float potionOfInvisilibityDuration;
+	public float invisibilityTime;
+	public bool isInvisible = false;
 
 	protected override void Start ()
 	{
@@ -54,12 +57,30 @@ public class Player : MovingObject {
 		
 	private void OnTriggerEnter2D(Collider2D other)
 	{
-		otherCollider = other;
+		if (other.gameObject.tag == "Enemy") {
+			StopCoroutine (SmoothMovementCoRoutine);
+			StartCoroutine (SmoothMovementBackCoRoutine);
+		}
 
 		// Check if GameOver
-		if (other.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
+		else if (other.gameObject.layer == LayerMask.NameToLayer ("DangerFloor") && !isInvisible) {
 			Die ();
+		} else if (other.gameObject.tag == "Potion") {
+			Destroy (other.gameObject);
+			isInvisible = true;
+			StartCoroutine (RemainInvisible ());
 		}
+	}
+
+	private IEnumerator RemainInvisible()
+	{
+		invisibilityTime = potionOfInvisilibityDuration;
+		while (invisibilityTime > float.Epsilon) {
+			invisibilityTime -= Time.deltaTime;
+			yield return null;
+		}
+
+		isInvisible = false;
 	}
 
 	public void Die()

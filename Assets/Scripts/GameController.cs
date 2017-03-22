@@ -22,6 +22,14 @@ public class GameController : MonoBehaviour {
 		InitGame ();
 	}
 
+	void Update()
+	{
+		if (enemy.endedMove) {
+			enemy.endedMove = false;
+			enemy.Patrol ();
+		}
+	}
+
 	public void InitGame()
 	{
 		if (BoardManager.singleton == null) {
@@ -39,16 +47,13 @@ public class GameController : MonoBehaviour {
 		this.player = script;
 	}
 
+	public bool isPlayerInvisible()
+	{
+		return player.isInvisible;
+	}
+
 	public void GameOver()
 	{
 		player.Die ();
-	}
-
-	void Update()
-	{
-		if (enemy.endedMove) {
-			enemy.endedMove = false;
-			enemy.Patrol ();
-		}
 	}
 }

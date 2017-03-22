@@ -4,19 +4,33 @@ using UnityEngine;
 
 public class MovingObject : MonoBehaviour {
 
+	private Rigidbody2D rb2D;
+	private float inverseMoveTime;
+
+	protected BoxCollider2D boxCollider;
+	protected int horizontal = 0;
+	protected int vertical = 0;
+	protected IEnumerator SmoothMovementCoRoutine;
+	protected IEnumerator SmoothMovementBackCoRoutine;
+
 	public float moveTime = 0.1f;
 	public LayerMask blockingLayer;
 	[HideInInspector]
 	public bool endedMove = true;
 
-	protected BoxCollider2D boxCollider;
-	protected int horizontal = 0;
-	protected int vertical = 0;
+	private IEnumerator SmoothMovementBack(Vector3 backPosition)
+	{
+		float sqrRemainingDistance = (transform.position - backPosition).sqrMagnitude;
 
-	private Rigidbody2D rb2D;
+		while (sqrRemainingDistance > float.Epsilon) {
 
-	private float inverseMoveTime;
-
+			Vector3 newPosition = Vector3.MoveTowards (rb2D.position, backPosition, inverseMoveTime * Time.deltaTime);
+			rb2D.MovePosition (newPosition);
+			sqrRemainingDistance = (transform.position - backPosition).sqrMagnitude;
+			yield return null;
+		}
+		endedMove = true;
+	}
 
 	protected virtual IEnumerator SmoothMovement(Vector3 end)
 	{
@@ -42,7 +56,9 @@ public class MovingObject : MonoBehaviour {
 		boxCollider.enabled = true;
 
 		if (hit.transform == null) {
-			StartCoroutine (SmoothMovement (end));
+			SmoothMovementCoRoutine =  SmoothMovement (end);
+			SmoothMovementBackCoRoutine = SmoothMovementBack (start);
+			StartCoroutine (SmoothMovementCoRoutine);
 			return true;
 		}
 		return false;

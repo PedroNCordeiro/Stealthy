@@ -21,7 +21,7 @@ public class Enemy : MovingObject {
 		
 	// Checks if there is a blocking object on enemy's sight
 	// Also specifically checks if that blocking object is the player
-	// If so, it'll be Game Over
+	// If so, it'll be Game Over, unless the player has taken a potion of invisibility
 	private bool BlockingObjectInVision(RaycastHit2D[] hits)
 	{
 		for (int i = 0; i < hits.Length; i++) {
@@ -30,6 +30,9 @@ public class Enemy : MovingObject {
 			} else if (hits [i].transform.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
 				blockingObjectPosition = new Vector2 (hits [i].transform.position.x, hits [i].transform.position.y);
 				if (hits [i].transform.gameObject.tag == "Player") {
+					if (GameController.singleton.isPlayerInvisible ()) {
+						continue;
+					}
 					GameController.singleton.GameOver ();
 				}
 				return true;
@@ -39,9 +42,16 @@ public class Enemy : MovingObject {
 	}
 
 	// All objects hit by the input RaycastHit array will change their layer to 'DangerousLayer'
+	// With the exception of the player when invisible
+	// If the player is invisible, he will keep its layer (blocking layer)
 	private void MarkObjectsAsDangerous(RaycastHit2D[] hits)
 	{
 		for (int i = 0; i < hits.Length; i++) {
+			if (hits [i].transform == null) {
+				break;
+			} else if (hits [i].transform.gameObject.tag == "Player") {
+				continue;
+			}
 			hits [i].transform.gameObject.layer = LayerMask.NameToLayer ("DangerFloor");
 			hits [i].transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.cyan;
 		}
@@ -109,6 +119,34 @@ public class Enemy : MovingObject {
 		Look(horizontal, vertical);
 	}
 
+	private bool CollidedWithInvisiblePlayer(RaycastHit2D hit)
+	{
+		return (hit.transform.gameObject.tag == "Player" && GameController.singleton.isPlayerInvisible()) ? true : false;
+	}
+
+	// All objects previously marked as Dangerous
+	// will now be reset (their layer mask will become "Floor" again)
+	private void ResetLook()
+	{
+		RaycastHit2D[] hits;
+
+		Vector2 origin = new Vector2 (transform.position.x + horizontal, transform.position.y + vertical);
+		Vector2 direction = new Vector2 (horizontal, vertical);
+		float distance = visionDistance - 1;
+
+		hits = Physics2D.RaycastAll (origin, direction, distance);
+
+		for (int i = 0; i < hits.Length; i++) {
+			if (hits [i].transform == null) {
+				break;
+			}
+			if (hits[i].transform.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
+				hits[i].transform.gameObject.layer = LayerMask.NameToLayer("Floor");
+				hits [i].transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
+			}
+		}
+	}
+
 	private void ChangePatrolDirection(int horizontal, int vertical)
 	{
 		if (horizontal == 1) {
@@ -136,6 +174,9 @@ public class Enemy : MovingObject {
 		RaycastHit2D hit;
 
 		if (!Move (horizontal, vertical, out hit)) {
+			if (CollidedWithInvisiblePlayer(hit)) {
+				ResetLook ();
+			}
 			ChangePatrolDirection (horizontal, vertical);
 		}
 	}
