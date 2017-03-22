@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour {
 
 	public static GameController singleton;
 	public GameObject boardManager;
+	public bool moveEnemy = true;
 
 	void Awake () {
 		if (singleton == null) {
@@ -24,8 +25,10 @@ public class GameController : MonoBehaviour {
 
 	void Update()
 	{
-		if (enemy.endedMove) {
+		if (enemy.endedMove && moveEnemy) {
 			enemy.Patrol ();
+		} else {
+			StartCoroutine (enemy.Look (-1, 0));
 		}
 	}
 

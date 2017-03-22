@@ -14,15 +14,15 @@ public class Enemy : MovingObject {
 		base.Start ();
 		GameController.singleton.AddEnemy (this);
 
-		horizontal = 1;
+		horizontal = -1;
 
-		Look(horizontal, vertical);
+		StartCoroutine(Look(horizontal, vertical));
 	}
 		
 	protected override IEnumerator SmoothMovement(Vector3 end)
 	{
 		yield return StartCoroutine (base.SmoothMovement (end));
-		Look(horizontal, vertical);
+		StartCoroutine(Look(horizontal, vertical));
 	}
 
 	private void MarkFloorAsDangerous(RaycastHit2D hit)
@@ -53,6 +53,7 @@ public class Enemy : MovingObject {
 					}
 					GameController.singleton.GameOver ();
 				}
+				ResetLook ();
 				return true;
 			}
 		}
@@ -115,7 +116,7 @@ public class Enemy : MovingObject {
 	// The enemy will look at his surroundings
 	// In practice, this will change the layer masks of all non-blocking objects within its vision to 'DangerFloor'
 	// All objects within this vision range are also modified graphically
-	private void Look(int horizontal, int vertical)
+	public IEnumerator Look(int horizontal, int vertical)
 	{		
 		RaycastHit2D[] hits;
 
@@ -142,13 +143,15 @@ public class Enemy : MovingObject {
 
 		if (BlockingObjectInVision (hits)) {
 			float distanceToBlockingObject = Vector2.Distance (origin, blockingObjectPosition);
-			if (distanceToBlockingObject == 0) {
-				return;
+			if (distanceToBlockingObject < 1) {
+				yield break;
 			}
 			hits = Physics2D.RaycastAll (origin, direction, distanceToBlockingObject - 1);
 		}
 
 		MarkObjectsAsDangerous (hits);
+
+		yield return null;
 	}
 
 	private bool CollidedWithInvisiblePlayer(RaycastHit2D hit)
@@ -172,7 +175,7 @@ public class Enemy : MovingObject {
 			this.horizontal = 1;
 		}
 
-		Look(this.horizontal, this.vertical);
+		StartCoroutine(Look(this.horizontal, this.vertical));
 	}
 
 	public void Patrol()
