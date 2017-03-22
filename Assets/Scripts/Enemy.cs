@@ -19,6 +19,24 @@ public class Enemy : MovingObject {
 		Look(horizontal, vertical);
 	}
 		
+	protected override IEnumerator SmoothMovement(Vector3 end)
+	{
+		yield return StartCoroutine (base.SmoothMovement (end));
+		Look(horizontal, vertical);
+	}
+
+	private void MarkFloorAsDangerous(RaycastHit2D hit)
+	{
+		hit.transform.gameObject.layer = LayerMask.NameToLayer ("DangerFloor");
+		hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.cyan;
+	}
+
+	private void MarkFloorAsRegular(RaycastHit2D hit)
+	{
+		hit.transform.gameObject.layer = LayerMask.NameToLayer ("Floor");
+		hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
+	}
+
 	// Checks if there is a blocking object on enemy's sight
 	// Also specifically checks if that blocking object is the player
 	// If so, it'll be Game Over, unless the player has taken a potion of invisibility
@@ -26,7 +44,7 @@ public class Enemy : MovingObject {
 	{
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
-				return false;
+				continue;
 			} else if (hits [i].transform.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
 				blockingObjectPosition = new Vector2 (hits [i].transform.position.x, hits [i].transform.position.y);
 				if (hits [i].transform.gameObject.tag == "Player") {
@@ -40,23 +58,7 @@ public class Enemy : MovingObject {
 		}
 		return false;
 	}
-
-	// All objects hit by the input RaycastHit array will change their layer to 'DangerousLayer'
-	// With the exception of the player when invisible
-	// If the player is invisible, he will keep its layer (blocking layer)
-	private void MarkObjectsAsDangerous(RaycastHit2D[] hits)
-	{
-		for (int i = 0; i < hits.Length; i++) {
-			if (hits [i].transform == null) {
-				break;
-			} else if (hits [i].transform.gameObject.tag == "Player") {
-				continue;
-			}
-			hits [i].transform.gameObject.layer = LayerMask.NameToLayer ("DangerFloor");
-			hits [i].transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.cyan;
-		}
-	}
-
+		
 	// Floor below the enemy will change its layer from 'DangerousFloor' to 'Floor'
 	// Since it is no longer seen by him
 	private void UpdateFloorBelow(Vector2 floorPosition, out RaycastHit2D[] hits)
@@ -67,10 +69,46 @@ public class Enemy : MovingObject {
 
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
-				break;
+				continue;
 			}
-			hits[i].transform.gameObject.layer = LayerMask.NameToLayer ("Floor");
-			hits[i].transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
+			MarkFloorAsRegular (hits [i]);
+		}
+	}
+
+	// All objects hit by the input RaycastHit array will change their layer to 'DangerousLayer'
+	// With the exception of the player when invisible
+	// If the player is invisible, he will keep its layer (blocking layer)
+	private void MarkObjectsAsDangerous(RaycastHit2D[] hits)
+	{
+		for (int i = 0; i < hits.Length; i++) {
+			if (hits [i].transform == null) {
+				continue;
+			} else if (hits [i].transform.gameObject.tag == "Player") {
+				continue;
+			}
+			MarkFloorAsDangerous (hits [i]);
+		}
+	}
+
+	// All objects previously marked as Dangerous
+	// will now be reset (their layer mask will become "Floor" again)
+	private void ResetLook()
+	{
+		RaycastHit2D[] hits;
+
+		Vector2 origin = new Vector2 (transform.position.x + horizontal, transform.position.y + vertical);
+		Vector2 direction = new Vector2 (horizontal, vertical);
+		float distance = visionDistance - 1;
+
+		hits = Physics2D.RaycastAll (origin, direction, distance);
+
+		for (int i = 0; i < hits.Length; i++) {
+			if (hits [i].transform == null) {
+				continue;
+			}
+			if (hits[i].transform.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
+				MarkFloorAsRegular (hits [i]);
+			}
 		}
 	}
 
@@ -113,38 +151,9 @@ public class Enemy : MovingObject {
 		MarkObjectsAsDangerous (hits);
 	}
 
-	protected override IEnumerator SmoothMovement(Vector3 end)
-	{
-		yield return StartCoroutine (base.SmoothMovement (end));
-		Look(horizontal, vertical);
-	}
-
 	private bool CollidedWithInvisiblePlayer(RaycastHit2D hit)
 	{
 		return (hit.transform.gameObject.tag == "Player" && GameController.singleton.isPlayerInvisible()) ? true : false;
-	}
-
-	// All objects previously marked as Dangerous
-	// will now be reset (their layer mask will become "Floor" again)
-	private void ResetLook()
-	{
-		RaycastHit2D[] hits;
-
-		Vector2 origin = new Vector2 (transform.position.x + horizontal, transform.position.y + vertical);
-		Vector2 direction = new Vector2 (horizontal, vertical);
-		float distance = visionDistance - 1;
-
-		hits = Physics2D.RaycastAll (origin, direction, distance);
-
-		for (int i = 0; i < hits.Length; i++) {
-			if (hits [i].transform == null) {
-				break;
-			}
-			if (hits[i].transform.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
-				hits[i].transform.gameObject.layer = LayerMask.NameToLayer("Floor");
-				hits [i].transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
-			}
-		}
 	}
 
 	private void ChangePatrolDirection(int horizontal, int vertical)
