@@ -22,6 +22,7 @@ public class Floor : MonoBehaviour {
 	// The floor will be destructed
 	public void DestructFloor()
 	{
+		spriteRenderer.sprite = destructedFloor;
 
 	}
 }

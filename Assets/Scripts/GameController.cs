@@ -25,8 +25,10 @@ public class GameController : MonoBehaviour {
 
 	void Update()
 	{
-		if (enemy.endedMove && moveEnemy) {
-			enemy.Patrol ();
+		if (moveEnemy) {
+			if (enemy.endedMove) {
+				enemy.Patrol ();
+			}
 		} else {
 			StartCoroutine (enemy.Look (-1, 0));
 		}

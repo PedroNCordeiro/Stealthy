@@ -8,23 +8,27 @@ public class Enemy : MovingObject {
 
 	public int visionDistance;
 
-
 	// Use this for initialization
 	protected override void Start () {
 		base.Start ();
 		GameController.singleton.AddEnemy (this);
 
-		horizontal = -1;
+		horizontal = 1;
 
 		StartCoroutine(Look(horizontal, vertical));
 	}
 		
+	void OnDestroy()
+	{
+		ResetLook ();
+	}
+
 	protected override IEnumerator SmoothMovement(Vector3 end)
 	{
 		yield return StartCoroutine (base.SmoothMovement (end));
 		StartCoroutine(Look(horizontal, vertical));
 	}
-
+		
 	private void MarkFloorAsDangerous(RaycastHit2D hit)
 	{
 		hit.transform.gameObject.layer = LayerMask.NameToLayer ("DangerFloor");
@@ -157,14 +161,28 @@ public class Enemy : MovingObject {
 
 		yield return null;
 	}
-
-	private bool CollidedWithInvisiblePlayer(RaycastHit2D hit)
+		
+	// Returns true if there is a hole (destructed floor) in the position given by <position>
+	// And returns false otherwise
+	private bool FindHole(Vector2 position, out RaycastHit2D[] hits)
 	{
-		return (hit.transform.gameObject.tag == "Player" && GameController.singleton.isPlayerInvisible()) ? true : false;
+		hits = Physics2D.RaycastAll (position, position, 0);
+		for (int i = 0; i < hits.Length; i++) {
+			if (hits [i].transform == null) {
+				Debug.Log ("Transform nula encontrada!");
+				continue;
+			}
+			else if (hits[i].transform.gameObject.tag == "DestructedFloor") {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void ChangePatrolDirection(int horizontal, int vertical)
 	{
+		ResetLook ();
+
 		if (horizontal == 1) {
 			this.horizontal = 0;
 			this.vertical = 1;
@@ -178,18 +196,24 @@ public class Enemy : MovingObject {
 			this.vertical = 0;
 			this.horizontal = 1;
 		}
-
+			
 		StartCoroutine(Look(this.horizontal, this.vertical));
 	}
 
 	public void Patrol()
 	{
 		RaycastHit2D hit;
+		RaycastHit2D[] hits;
 
-		if (!Move (horizontal, vertical, out hit)) {
-			if (CollidedWithInvisiblePlayer(hit)) {
-				ResetLook ();
-			}
+		// Before trying to move, the enemy will check if there is a hole in front of him
+		// (Hole = destructed floor)
+		// If there is, he won't move there, and will change direction instead
+		Vector2 nextPosition = new Vector2(transform.position.x + horizontal, transform.position.y + vertical);
+		if (FindHole(nextPosition, out hits)) {
+			ChangePatrolDirection (horizontal, vertical);
+		}
+
+		else if (!Move (horizontal, vertical, out hit)) {
 			ChangePatrolDirection (horizontal, vertical);
 		}
 	}

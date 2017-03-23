@@ -59,8 +59,8 @@ public class BoardManager : MonoBehaviour {
 		/*GameObject exitInstance = Instantiate (exit, new Vector3 (boardWidth - 2, boardHeight - 2), Quaternion.identity) as GameObject;
 		exitInstance.transform.SetParent (boardHolder);*/
 
-		/*GameObject crateInstance = Instantiate (crate, new Vector3 (2, 6), Quaternion.identity) as GameObject;
-		crateInstance.transform.SetParent (boardHolder);*/
+		GameObject crateInstance = Instantiate (crate, new Vector3 (2, 6), Quaternion.identity) as GameObject;
+		crateInstance.transform.SetParent (boardHolder);
 
 		/*GameObject potionInstance = Instantiate (potion, new Vector3 (2, 2), Quaternion.identity) as GameObject;
 		potionInstance.transform.SetParent (boardHolder);*/

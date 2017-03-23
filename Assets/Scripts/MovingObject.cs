@@ -13,10 +13,34 @@ public class MovingObject : MonoBehaviour {
 	protected IEnumerator SmoothMovementCoRoutine;
 	protected IEnumerator SmoothMovementBackCoRoutine;
 
-	public float moveTime = 0.1f;
+	public float moveTime;
 	public LayerMask blockingLayer;
 	[HideInInspector]
 	public bool endedMove = true;
+
+
+	protected virtual void OnTriggerEnter2D(Collider2D other)
+	{
+		if (other.gameObject.tag == "LaserFloor") {
+			other.gameObject.tag = "DestructedFloor";
+			Floor floor = other.gameObject.GetComponent<Floor> () as Floor;
+
+			DestroyFloorByStepping (floor);
+			Fall ();
+		} else if (other.gameObject.tag == "DestructedFloor") {
+			Fall ();
+		}
+	}
+
+	private void DestroyFloorByStepping(Floor floor)
+	{
+		floor.DestructFloor ();
+	}
+
+	private void Fall()
+	{
+		Destroy (gameObject);
+	}
 
 	private IEnumerator SmoothMovementBack(Vector3 backPosition)
 	{
