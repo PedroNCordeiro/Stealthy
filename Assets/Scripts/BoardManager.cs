@@ -6,8 +6,8 @@ public class BoardManager : MonoBehaviour {
 
 	public static BoardManager singleton;
 	public bool autoUpdate;
-	public int boardWidth = 20;
-	public int boardHeight = 20;
+	public int boardWidth;
+	public int boardHeight;
 
 	public GameObject topLeftWall;
 	public GameObject topRightWall;
@@ -22,6 +22,7 @@ public class BoardManager : MonoBehaviour {
 	public GameObject enemy;
 	public GameObject crate;
 	public GameObject potion;
+	public GameObject laser;
 
 	private Transform boardHolder;
 
@@ -55,14 +56,17 @@ public class BoardManager : MonoBehaviour {
 				instance.transform.SetParent (boardHolder);
 			}
 		}
-		GameObject exitInstance = Instantiate (exit, new Vector3 (boardWidth - 2, boardHeight - 2), Quaternion.identity) as GameObject;
-		exitInstance.transform.SetParent (boardHolder);
+		/*GameObject exitInstance = Instantiate (exit, new Vector3 (boardWidth - 2, boardHeight - 2), Quaternion.identity) as GameObject;
+		exitInstance.transform.SetParent (boardHolder);*/
 
-		GameObject crateInstance = Instantiate (crate, new Vector3 (2, 6), Quaternion.identity) as GameObject;
-		crateInstance.transform.SetParent (boardHolder);
+		/*GameObject crateInstance = Instantiate (crate, new Vector3 (2, 6), Quaternion.identity) as GameObject;
+		crateInstance.transform.SetParent (boardHolder);*/
 
-		GameObject potionInstance = Instantiate (potion, new Vector3 (2, 2), Quaternion.identity) as GameObject;
-		potionInstance.transform.SetParent (boardHolder);
+		/*GameObject potionInstance = Instantiate (potion, new Vector3 (2, 2), Quaternion.identity) as GameObject;
+		potionInstance.transform.SetParent (boardHolder);*/
+
+		GameObject laserInstance = Instantiate (laser, new Vector3 (1, 4), Quaternion.identity) as GameObject;
+		laserInstance.transform.SetParent (boardHolder);
 
 		GameObject enemyInstance = Instantiate (enemy, new Vector3 (3, 1), Quaternion.identity) as GameObject;
 		enemyInstance.transform.SetParent (boardHolder);

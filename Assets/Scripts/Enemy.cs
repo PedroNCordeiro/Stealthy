@@ -44,6 +44,7 @@ public class Enemy : MovingObject {
 	{
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
+				Debug.Log ("Encontrei Transform nula!");
 				continue;
 			} else if (hits [i].transform.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
 				blockingObjectPosition = new Vector2 (hits [i].transform.position.x, hits [i].transform.position.y);
@@ -70,6 +71,7 @@ public class Enemy : MovingObject {
 
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
+				Debug.Log ("Encontrei Transform nula!");
 				continue;
 			}
 			MarkFloorAsRegular (hits [i]);
@@ -83,6 +85,7 @@ public class Enemy : MovingObject {
 	{
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
+				Debug.Log ("Encontrei Transform nula!");
 				continue;
 			} else if (hits [i].transform.gameObject.tag == "Player") {
 				continue;
@@ -105,6 +108,7 @@ public class Enemy : MovingObject {
 
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
+				Debug.Log ("Encontrei Transform nula!");
 				continue;
 			}
 			if (hits[i].transform.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
