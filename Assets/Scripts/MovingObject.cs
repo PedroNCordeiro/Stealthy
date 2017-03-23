@@ -6,12 +6,12 @@ public class MovingObject : MonoBehaviour {
 
 	private Rigidbody2D rb2D;
 	private float inverseMoveTime;
+	private IEnumerator SmoothMovementCoRoutine;
+	private IEnumerator SmoothMovementBackCoRoutine;
 
 	protected BoxCollider2D boxCollider;
 	protected int horizontal = 0;
 	protected int vertical = 0;
-	protected IEnumerator SmoothMovementCoRoutine;
-	protected IEnumerator SmoothMovementBackCoRoutine;
 
 	public float moveTime;
 	public LayerMask blockingLayer;
@@ -21,13 +21,22 @@ public class MovingObject : MonoBehaviour {
 
 	protected virtual void OnTriggerEnter2D(Collider2D other)
 	{
-		if (other.gameObject.tag == "LaserFloor") {
+		if (other.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
+			if (gameObject.tag != "Enemy") {
+				StopCoroutine (SmoothMovementCoRoutine);
+				StartCoroutine (SmoothMovementBackCoRoutine);
+			}
+		} 
+
+		else if (other.gameObject.tag == "LaserFloor") {
 			other.gameObject.tag = "DestructedFloor";
 			Floor floor = other.gameObject.GetComponent<Floor> () as Floor;
 
 			DestroyFloorByStepping (floor);
 			Fall ();
-		} else if (other.gameObject.tag == "DestructedFloor") {
+		}
+
+		else if (other.gameObject.tag == "DestructedFloor") {
 			Fall ();
 		}
 	}

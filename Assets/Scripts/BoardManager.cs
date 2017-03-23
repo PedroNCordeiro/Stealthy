@@ -62,11 +62,11 @@ public class BoardManager : MonoBehaviour {
 		GameObject crateInstance = Instantiate (crate, new Vector3 (2, 6), Quaternion.identity) as GameObject;
 		crateInstance.transform.SetParent (boardHolder);
 
-		/*GameObject potionInstance = Instantiate (potion, new Vector3 (2, 2), Quaternion.identity) as GameObject;
-		potionInstance.transform.SetParent (boardHolder);*/
+		GameObject potionInstance = Instantiate (potion, new Vector3 (2, 2), Quaternion.identity) as GameObject;
+		potionInstance.transform.SetParent (boardHolder);
 
-		GameObject laserInstance = Instantiate (laser, new Vector3 (1, 4), Quaternion.identity) as GameObject;
-		laserInstance.transform.SetParent (boardHolder);
+		/*GameObject laserInstance = Instantiate (laser, new Vector3 (1, 4), Quaternion.identity) as GameObject;
+		laserInstance.transform.SetParent (boardHolder);*/
 
 		GameObject enemyInstance = Instantiate (enemy, new Vector3 (3, 1), Quaternion.identity) as GameObject;
 		enemyInstance.transform.SetParent (boardHolder);

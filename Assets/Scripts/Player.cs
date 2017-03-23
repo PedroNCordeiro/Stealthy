@@ -46,13 +46,8 @@ public class Player : MovingObject {
 	{
 		base.OnTriggerEnter2D(other);
 
-		if (other.gameObject.tag == "Enemy") {
-			StopCoroutine (SmoothMovementCoRoutine);
-			StartCoroutine (SmoothMovementBackCoRoutine);
-		} 
-
 		// Check if GameOver
-		else if (other.gameObject.layer == LayerMask.NameToLayer ("DangerFloor") && !isInvisible) {
+		if (other.gameObject.layer == LayerMask.NameToLayer ("DangerFloor") && !isInvisible) {
 			Die ();
 		}
 
