@@ -206,10 +206,14 @@ public class Player : MovingObject {
 			if (!Move (horizontal, vertical, out hit)) {
 				// Did we hit a blocking object?
 				if (hit.transform.gameObject.tag == "BlockingObject") {
-					Crate crate = hit.transform.GetComponent<Crate>() as Crate;
+					Crate crate = hit.transform.GetComponent<Crate> () as Crate;
 					if (crate.endedMove) {
 						crate.Move (horizontal, vertical, out hit);
 					}
+				} else if (hit.transform.gameObject.tag == "LightSwitch") {
+					Debug.Log ("Tried (and failed!) to move to the light switch!");
+					Light light = GameObject.FindGameObjectWithTag("MainLight").GetComponent<Light>() as Light;
+					light.intensity = 0f;
 				}
 			}
 		}
