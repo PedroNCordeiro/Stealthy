@@ -5,14 +5,18 @@ using UnityEngine;
 public class Player : MovingObject {
 
 	private bool laserKeyPressed = false;
+	private bool hasLaser = false;
+	private bool movementInputReady = true;
+	private bool itemInputReady = true;
+	private float invisibilityTime;
 	private Vector2 direction = new Vector2(1, 0); // Keeps the direction the player is facing; Starts looking right
 
-
+	public float movementInputDelay;
+	public float itemInputDelay;
 	[Range(1f, float.MaxValue)]
 	public float potionOfInvisilibityDuration;
-	public float invisibilityTime;
 	public bool isInvisible = false;
-	public bool hasLaser = false;
+
 
 	protected override void Start ()
 	{
@@ -22,24 +26,7 @@ public class Player : MovingObject {
 
 	// Update is called once per frame
 	void Update () {
-
-		laserKeyPressed = Input.GetKeyDown (KeyCode.Z);
-		if (laserKeyPressed && hasLaser) {
-			UseLaser ();
-		}
-
-		horizontal = (int)Input.GetAxisRaw ("Horizontal");
-		vertical = (int)Input.GetAxisRaw ("Vertical");
-
-		if (horizontal != 0) {
-			vertical = 0;
-		}
-
-		if (horizontal != 0 || vertical != 0) {
-			SaveDirection (horizontal, vertical);
-			MovePlayer ();
-		}
-
+		CheckInputs ();
 	}
 
 	protected override void OnTriggerEnter2D(Collider2D other)
@@ -66,6 +53,75 @@ public class Player : MovingObject {
 			hasLaser = true;
 		}
 
+	}
+
+	// Reads all item inputs
+	private IEnumerator CheckItemInputs()
+	{
+		if (itemInputReady) {
+			// Check if any input this frame input at this frame
+			laserKeyPressed = Input.GetKeyDown (KeyCode.Z);
+			if (laserKeyPressed && hasLaser) {
+
+				itemInputReady = false;
+
+				UseLaser ();
+
+				yield return new WaitForSeconds (itemInputDelay);
+
+				itemInputReady = true;
+			}
+		}
+
+		yield return null;
+	}
+
+	// Reads all player movement inputs
+	private IEnumerator CheckMovementInputs()
+	{
+		if (movementInputReady) {
+
+			horizontal = (int)Input.GetAxisRaw ("Horizontal");
+			vertical = (int)Input.GetAxisRaw ("Vertical");
+
+			if (horizontal != 0) {
+				vertical = 0;
+			}
+
+			if (horizontal != 0 || vertical != 0) {
+
+				movementInputReady = false;
+
+				// The player only moves if he doesn't change his direction
+				if (ChangeInDirection (horizontal, vertical)) {
+					SaveDirection (horizontal, vertical);
+					yield return new WaitForSeconds (movementInputDelay);
+				} else {
+					MovePlayer ();
+				}
+
+				movementInputReady = true;
+			}
+		}
+
+		yield return null;
+	}
+
+	// Checks all the player inputs
+	private void CheckInputs()
+	{
+		StartCoroutine (CheckItemInputs ());
+		StartCoroutine (CheckMovementInputs ());
+	}
+
+	// Checks if the player movement input given by <horizontal, vertical> differs from the previous input
+	// i.e. Checks if the player changed direction
+	private bool ChangeInDirection(int horizontal, int vertical)
+	{
+		if (horizontal != direction.x || vertical != direction.y) {
+			return true;
+		}
+		return false;
 	}
 
 	// Save the direction the player is facing
@@ -109,11 +165,10 @@ public class Player : MovingObject {
 	}
 
 	// Checks if the player can use the laser in the position given by <position>
-	// He can't use it if there is a blocking object in front of him
-	// Or if there is an object above the floor there
+	// He can't use it if there is a blocking object there
+	// Or if there is an object above that floor
 	private bool CanUseLaser(Vector2 position, out RaycastHit2D[] hits)
 	{
-		//RaycastHit2D[] hits;
 		if (FindBlockingObjectAtPosition (position, out hits) || FindItemAtPosition(position, out hits)) {
 			return false;
 		}
@@ -121,12 +176,13 @@ public class Player : MovingObject {
 	}
 
 	// Uses the laser in the floor in front of the player
-	// Unless there is something above it
+	// Unless there is something there
 	private void UseLaser()
 	{
 		RaycastHit2D[] hits;
-		Vector2 laserFloorPosition = new Vector2 (transform.position.x + direction.x, transform.position.y + direction.y);
-		if (CanUseLaser(laserFloorPosition, out hits)) {
+		Vector2 floorPosition = new Vector2 (transform.position.x + direction.x, transform.position.y + direction.y);
+
+		if (CanUseLaser(floorPosition, out hits)) {
 			for (int i = 0; i < hits.Length; i++) {
 				if (hits [i].transform == null) {
 					Debug.Log ("Encontrei uma transform nula!");
@@ -136,6 +192,7 @@ public class Player : MovingObject {
 				Floor floor = hits [i].transform.GetComponent<Floor> () as Floor;
 				floor.DamageFloorByLaser ();
 			}
+			//hasLaser = false;
 		}
 	}
 
