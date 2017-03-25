@@ -58,6 +58,24 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
+	// Checks if the floor in position <floorPosition> is
+	// seen by an enemy other than <askingEnemy>
+	public bool FloorSeenByAnotherEnemy(Vector2 floorPosition, Enemy askingEnemy)
+	{
+		for (int i = 0; i < enemies.Count; i++) {
+			if (enemies [i] == askingEnemy) {
+				continue;
+			}
+			for (int j = 0; j < enemies[i].dangerousFloorPositions.Count; j++) {
+				if (enemies[i].dangerousFloorPositions[j] == floorPosition) {
+					return true;
+				}	
+			}
+		}
+
+		return false;
+	}
+
 	// Advances the game for the next level
 	public void NextLevel()
 	{

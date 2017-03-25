@@ -72,7 +72,8 @@ public class BoardManager : MonoBehaviour {
 		GameObject lightSwitchInstance = Instantiate (lightSwitch, new Vector3 (1, 4), Quaternion.identity) as GameObject;
 		lightSwitchInstance.transform.SetParent (boardHolder);
 
-		GameObject enemyInstance = Instantiate (enemy, new Vector3 (3, 1), Quaternion.identity) as GameObject;
-		enemyInstance.transform.SetParent (boardHolder);
+		Instantiate (enemy, new Vector3 (3, 1), Quaternion.identity);
+
+		Instantiate (enemy, new Vector3 (3, 3), Quaternion.identity);
 	}
 }

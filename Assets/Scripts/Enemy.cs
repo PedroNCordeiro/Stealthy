@@ -8,11 +8,14 @@ public class Enemy : MovingObject {
 
 	public int visionDistance;
 	public bool canMove;
+	public List <Vector2> dangerousFloorPositions;
 
 	// Use this for initialization
 	protected override void Start () {
 		base.Start ();
+
 		GameController.singleton.AddEnemyToList (this);
+		dangerousFloorPositions = new List<Vector2> ();
 
 		horizontal = 1;
 
@@ -37,14 +40,19 @@ public class Enemy : MovingObject {
 		
 	private void MarkFloorAsDangerous(RaycastHit2D hit)
 	{
+		dangerousFloorPositions.Add (hit.transform.position);
 		hit.transform.gameObject.layer = LayerMask.NameToLayer ("DangerFloor");
 		hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.cyan;
 	}
 
 	private void MarkFloorAsRegular(RaycastHit2D hit)
 	{
-		hit.transform.gameObject.layer = LayerMask.NameToLayer ("Floor");
-		hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
+		dangerousFloorPositions.Remove (hit.transform.position);
+
+		if (!GameController.singleton.FloorSeenByAnotherEnemy(hit.transform.position, this)) {
+			hit.transform.gameObject.layer = LayerMask.NameToLayer ("Floor");
+			hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
+		}
 	}
 
 	// Checks if there is a blocking object on enemy's sight
