@@ -74,6 +74,6 @@ public class BoardManager : MonoBehaviour {
 
 		Instantiate (enemy, new Vector3 (3, 1), Quaternion.identity);
 
-		Instantiate (enemy, new Vector3 (3, 3), Quaternion.identity);
+		Instantiate (enemy, new Vector3 (3, 4), Quaternion.identity);
 	}
 }

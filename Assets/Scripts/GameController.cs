@@ -44,7 +44,7 @@ public class GameController : MonoBehaviour {
 		this.player = script;
 	}
 
-	public bool isPlayerInvisible()
+	public bool IsPlayerInvisible()
 	{
 		return player.isInvisible;
 	}
@@ -60,14 +60,15 @@ public class GameController : MonoBehaviour {
 
 	// Checks if the floor in position <floorPosition> is
 	// seen by an enemy other than <askingEnemy>
-	public bool FloorSeenByAnotherEnemy(Vector2 floorPosition, Enemy askingEnemy)
+	public bool IsFloorSeenByAnotherEnemy(Vector2 floorPosition, Enemy askingEnemy)
 	{
 		for (int i = 0; i < enemies.Count; i++) {
 			if (enemies [i] == askingEnemy) {
 				continue;
 			}
 			for (int j = 0; j < enemies[i].dangerousFloorPositions.Count; j++) {
-				if (enemies[i].dangerousFloorPositions[j] == floorPosition) {
+				if (enemies[i].dangerousFloorPositions[j].x == floorPosition.x && enemies[i].dangerousFloorPositions[j].y == floorPosition.y) {
+					Debug.Log ("FloorSeenByAnotherEnemy is TRUE");
 					return true;
 				}	
 			}

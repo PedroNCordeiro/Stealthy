@@ -40,16 +40,19 @@ public class Enemy : MovingObject {
 		
 	private void MarkFloorAsDangerous(RaycastHit2D hit)
 	{
-		dangerousFloorPositions.Add (hit.transform.position);
-		hit.transform.gameObject.layer = LayerMask.NameToLayer ("DangerFloor");
-		hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.cyan;
+		// Only mark the floor as dangerous if it not in the list already
+		if (!dangerousFloorPositions.Contains (hit.transform.position)) {
+			dangerousFloorPositions.Add (hit.transform.position);
+			hit.transform.gameObject.layer = LayerMask.NameToLayer ("DangerFloor");
+			hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.cyan;
+		}
 	}
 
 	private void MarkFloorAsRegular(RaycastHit2D hit)
 	{
 		dangerousFloorPositions.Remove (hit.transform.position);
 
-		if (!GameController.singleton.FloorSeenByAnotherEnemy(hit.transform.position, this)) {
+		if (!GameController.singleton.IsFloorSeenByAnotherEnemy(hit.transform.position, this)) {
 			hit.transform.gameObject.layer = LayerMask.NameToLayer ("Floor");
 			hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
 		}
@@ -67,7 +70,7 @@ public class Enemy : MovingObject {
 			} else if (hits [i].transform.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
 				blockingObjectPosition = new Vector2 (hits [i].transform.position.x, hits [i].transform.position.y);
 				if (hits [i].transform.gameObject.tag == "Player") {
-					if (GameController.singleton.isPlayerInvisible ()) {
+					if (GameController.singleton.IsPlayerInvisible ()) {
 						continue;
 					}
 					GameController.singleton.GameOver ();
@@ -83,9 +86,7 @@ public class Enemy : MovingObject {
 	// Since it is no longer seen by him
 	private void UpdateFloorBelow(Vector2 floorPosition, out RaycastHit2D[] hits)
 	{
-		Vector2 direction = new Vector2 (horizontal, vertical);
-
-		hits = Physics2D.RaycastAll (floorPosition, direction, 0);
+		hits = Physics2D.RaycastAll (floorPosition, floorPosition, 0);
 
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
