@@ -7,17 +7,23 @@ public class Enemy : MovingObject {
 	private Vector2 blockingObjectPosition = Vector2.zero;
 
 	public int visionDistance;
+	public bool canMove;
 
 	// Use this for initialization
 	protected override void Start () {
 		base.Start ();
-		GameController.singleton.AddEnemy (this);
+		GameController.singleton.AddEnemyToList (this);
 
 		horizontal = 1;
 
 		StartCoroutine(Look(horizontal, vertical));
 	}
 		
+	void Update()
+	{
+		StartCoroutine (Look (horizontal, vertical));
+	}
+
 	void OnDestroy()
 	{
 		ResetLook ();

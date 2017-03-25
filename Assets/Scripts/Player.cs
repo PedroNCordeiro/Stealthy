@@ -52,7 +52,6 @@ public class Player : MovingObject {
 			Destroy (other.gameObject);
 			hasLaser = true;
 		}
-
 	}
 
 	// Reads all item inputs
@@ -197,13 +196,15 @@ public class Player : MovingObject {
 	}
 
 	// The player will try to move if there is not a blocking object in the way
-	// If thhere is, and it is a crate, he will push it
+	// If there is, and it is a crate, he will push it
+	// If there is a light switch, he'll click it
 	private void MovePlayer()
 	{
 		RaycastHit2D hit;
 
 		if (endedMove) {
 			if (!Move (horizontal, vertical, out hit)) {
+
 				// Did we hit a blocking object?
 				if (hit.transform.gameObject.tag == "BlockingObject") {
 					Crate crate = hit.transform.GetComponent<Crate> () as Crate;
@@ -215,6 +216,7 @@ public class Player : MovingObject {
 					Light light = GameObject.FindGameObjectWithTag("MainLight").GetComponent<Light>() as Light;
 					light.intensity = 0f;
 				}
+
 			}
 		}
 	}

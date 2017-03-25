@@ -5,9 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {
 
-	private Enemy enemy;
 	private Player player;
-
+	private List <Enemy> enemies;
 
 	public static GameController singleton;
 	public GameObject boardManager;
@@ -21,22 +20,23 @@ public class GameController : MonoBehaviour {
 		}
 
 		DontDestroyOnLoad (gameObject);
+
+		enemies = new List<Enemy> ();
 	}
 
 	void Update()
 	{
-		if (moveEnemy) {
-			if (enemy.endedMove) {
-				enemy.Patrol ();
-			}
-		} else {
-			StartCoroutine (enemy.Look (-1, 0));
-		}
+		MoveEnemies ();
 	}
 
-	public void AddEnemy(Enemy script)
+	public void AddEnemyToList(Enemy script)
 	{
-		this.enemy = script;
+		enemies.Add (script);
+	}
+
+	private void RemoveEnemyFromList(Enemy script)
+	{
+		enemies.Remove (script);
 	}
 
 	public void AddPlayer(Player script)
@@ -47,6 +47,15 @@ public class GameController : MonoBehaviour {
 	public bool isPlayerInvisible()
 	{
 		return player.isInvisible;
+	}
+
+	private void MoveEnemies()
+	{
+		for (int i = 0; i < enemies.Count; i++) {
+			if (enemies[i].canMove && enemies [i].endedMove) {
+				enemies [i].Patrol ();
+			}
+		}
 	}
 
 	// Advances the game for the next level
