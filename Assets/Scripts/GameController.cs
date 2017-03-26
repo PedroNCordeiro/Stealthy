@@ -11,6 +11,9 @@ public class GameController : MonoBehaviour {
 	public static GameController singleton;
 	public GameObject boardManager;
 	public bool moveEnemy = true;
+	public bool lightSwitchInputReady = true;
+	public float lightSwitchInputDelay;
+
 
 	void Awake () {
 		if (singleton == null) {
@@ -75,6 +78,26 @@ public class GameController : MonoBehaviour {
 		}
 
 		return false;
+	}
+
+	private IEnumerator SwitchLightsCoroutine()
+	{
+		lightSwitchInputReady = false;
+
+		Debug.Log ("Found a light switch");
+		Light light = GameObject.FindGameObjectWithTag ("MainLight").GetComponent<Light> () as Light;
+
+		light.intensity = (light.intensity == 1f) ? 0f : 1f;
+
+		yield return new WaitForSeconds (lightSwitchInputDelay);
+
+		lightSwitchInputReady = true;
+	}
+
+	// If the player or an enemy pressed the light switch
+	public void SwitchLights()
+	{
+		StartCoroutine (SwitchLightsCoroutine());
 	}
 
 	// Advances the game for the next level

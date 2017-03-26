@@ -5,14 +5,18 @@ using UnityEngine;
 public class Player : MovingObject {
 
 	private bool laserKeyPressed = false;
+	private bool interactionKeyPressed = false;
+
 	private bool hasLaser = false;
+
 	private bool movementInputReady = true;
-	private bool itemInputReady = true;
+	private bool laserInputReady = true;
+
 	private float invisibilityTime;
 	private Vector2 direction = new Vector2(1, 0); // Keeps the direction the player is facing; Starts looking right
 
 	public float movementInputDelay;
-	public float itemInputDelay;
+	public float laserInputDelay;
 	[Range(1f, float.MaxValue)]
 	public float potionOfInvisilibityDuration;
 	public bool isInvisible = false;
@@ -53,22 +57,44 @@ public class Player : MovingObject {
 			hasLaser = true;
 		}
 	}
+		
+	// Reads all inputs related to player interactions
+	private IEnumerator CheckInteractionInputs()
+	{
+		interactionKeyPressed = Input.GetKeyDown (KeyCode.X);
 
-	// Reads all item inputs
+		if (interactionKeyPressed) {
+
+			if (GameController.singleton.lightSwitchInputReady) {
+				string objectTag;
+
+				if (FindInteractiveObject (out objectTag)) {
+					if (objectTag == "LightSwitch") {
+						GameController.singleton.SwitchLights ();
+					}
+				}
+
+			}
+		}
+
+		yield return null;
+	}
+
+	// Reads all inputs related to player items
 	private IEnumerator CheckItemInputs()
 	{
-		if (itemInputReady) {
-			// Check if any input this frame input at this frame
+		if (laserInputReady) {
+
 			laserKeyPressed = Input.GetKeyDown (KeyCode.Z);
 			if (laserKeyPressed && hasLaser) {
 
-				itemInputReady = false;
+				laserInputReady = false;
 
 				UseLaser ();
 
-				yield return new WaitForSeconds (itemInputDelay);
+				yield return new WaitForSeconds (laserInputDelay);
 
-				itemInputReady = true;
+				laserInputReady = true;
 			}
 		}
 
@@ -109,6 +135,7 @@ public class Player : MovingObject {
 	// Checks all the player inputs
 	private void CheckInputs()
 	{
+		StartCoroutine (CheckInteractionInputs ());
 		StartCoroutine (CheckItemInputs ());
 		StartCoroutine (CheckMovementInputs ());
 	}
@@ -211,14 +238,33 @@ public class Player : MovingObject {
 					if (crate.endedMove) {
 						crate.Move (horizontal, vertical, out hit);
 					}
-				} else if (hit.transform.gameObject.tag == "LightSwitch") {
-					Debug.Log ("Tried (and failed!) to move to the light switch!");
-					Light light = GameObject.FindGameObjectWithTag("MainLight").GetComponent<Light>() as Light;
-					light.intensity = 0f;
 				}
-
 			}
 		}
+	}
+
+	// Checks if there is an object the player can interact with
+	private bool FindInteractiveObject(out string objectTag)
+	{
+		// Interactive objects need to be in front of the player
+		Vector2 positionInFront = new Vector2 (transform.position.x + direction.x, transform.position.y + direction.y);
+
+		RaycastHit2D[] hits;
+		hits = Physics2D.RaycastAll (positionInFront, positionInFront, 0);
+
+		for (int i = 0; i < hits.Length; i++) {
+			if (hits [i].transform == null) {
+				Debug.Log ("Encontrei transform nula");
+				continue;
+			}
+			if (hits [i].transform.gameObject.tag == "LightSwitch") {
+				objectTag = "LightSwitch";
+				return true;
+			}
+		}
+
+		objectTag = "None";
+		return false;
 	}
 
 	// Make the player invisible for a given duration
