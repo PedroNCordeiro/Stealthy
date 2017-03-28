@@ -13,7 +13,6 @@ public class Player : MovingObject {
 	private bool laserInputReady = true;
 
 	private float invisibilityTime;
-	private Vector2 direction = new Vector2(1, 0); // Keeps the direction the player is facing; Starts looking right
 
 	public float movementInputDelay;
 	public float laserInputDelay;
@@ -70,7 +69,9 @@ public class Player : MovingObject {
 
 				if (FindInteractiveObject (out objectTag)) {
 					if (objectTag == "LightSwitch") {
-						GameController.singleton.SwitchLights ();
+
+						bool lightsOFF = GameController.singleton.CheckLightsOff ();
+						StartCoroutine(GameController.singleton.SwitchLights(!lightsOFF));
 					}
 				}
 
@@ -139,23 +140,7 @@ public class Player : MovingObject {
 		StartCoroutine (CheckItemInputs ());
 		StartCoroutine (CheckMovementInputs ());
 	}
-
-	// Checks if the player movement input given by <horizontal, vertical> differs from the previous input
-	// i.e. Checks if the player changed direction
-	private bool ChangeInDirection(int horizontal, int vertical)
-	{
-		if (horizontal != direction.x || vertical != direction.y) {
-			return true;
-		}
-		return false;
-	}
-
-	// Save the direction the player is facing
-	private void SaveDirection(int horizontal, int vertical)
-	{
-		direction = new Vector2 (horizontal, vertical);
-	}
-
+		
 	// Checks if there is a blocking object in the position given by <position>
 	private bool FindBlockingObjectAtPosition(Vector2 position, out RaycastHit2D[] hits)
 	{

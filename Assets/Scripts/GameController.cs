@@ -7,13 +7,15 @@ public class GameController : MonoBehaviour {
 
 	private Player player;
 	private List <Enemy> enemies;
+	private Light mainLight;
 
 	public static GameController singleton;
 	public GameObject boardManager;
 	public bool moveEnemy = true;
 	public bool lightSwitchInputReady = true;
 	public float lightSwitchInputDelay;
-
+	public float distance1;
+	public float distance2;
 
 	void Awake () {
 		if (singleton == null) {
@@ -25,6 +27,10 @@ public class GameController : MonoBehaviour {
 		DontDestroyOnLoad (gameObject);
 
 		enemies = new List<Enemy> ();
+
+		// Light switch references
+		GameObject mainLightObject = GameObject.FindGameObjectWithTag ("MainLight");
+		mainLight = mainLightObject.GetComponent<Light>() as Light;
 	}
 
 	void Update()
@@ -80,24 +86,90 @@ public class GameController : MonoBehaviour {
 		return false;
 	}
 
-	private IEnumerator SwitchLightsCoroutine()
+	// Finds the closest enemy to <endPosition> and returns its index in the enemies array
+	private int FindClosestEnemy(Vector2 endPosition)
 	{
+		float min = float.MaxValue;
+		int idx = 0;
+
+		for (int i = 0; i < enemies.Count; i++) {
+			float distance = Vector2.Distance (enemies [i].transform.position, endPosition);
+			if (distance < min) {
+				min = distance;
+				idx = i;
+			}
+		}
+		distance1 = Vector2.Distance (enemies [0].transform.position, endPosition);
+		distance2 = Vector2.Distance (enemies [1].transform.position, endPosition);
+
+		return idx;
+	}
+
+	// The path to the lightswitch
+	// Each Vector2 represents the direction the enemy needs to move each time
+	private Vector2[] PathToLightSwitch()
+	{
+		Vector2[] path = new Vector2[6];
+		path [0] = new Vector2 (0, 1);
+		path [1] = new Vector2 (-1, 0);
+		path [2] = new Vector2 (-1, 0);
+		path [3] = new Vector2 (-1, 0);
+		path [4] = new Vector2 (-1, 0);
+		path [5] = new Vector2 (-1, 0);  
+
+		return path;
+	}
+
+	// The path to the lightswitch
+	// Each Vector2 represents the direction the enemy needs to move each time
+	private Vector2[] PathToDutyPosition()
+	{
+		Vector2[] path = new Vector2[6];
+
+		path [0] = new Vector2 (1, 0);
+		path [1] = new Vector2 (1, 0);
+		path [2] = new Vector2 (1, 0);
+		path [3] = new Vector2 (1, 0);
+		path [4] = new Vector2 (1, 0);
+		path [5] = new Vector2 (0, -1);
+
+		return path;
+	}
+
+	// Activated if the player or an enemy pressed the light switch
+	// The bool parameter indicates whether the lights are to become OFF
+	// If turnLightsOFF is TRUE, we will find the closest enemy to the light switch
+	// And command it to go turn the lights ON
+	public IEnumerator SwitchLights(bool turnLightsOFF)
+	{
+		GameObject lightSwitch = GameObject.FindGameObjectWithTag ("LightSwitch");
+		Vector2 lightSwitchPosition = lightSwitch.transform.position;
+
 		lightSwitchInputReady = false;
 
 		Debug.Log ("Found a light switch");
-		Light light = GameObject.FindGameObjectWithTag ("MainLight").GetComponent<Light> () as Light;
 
-		light.intensity = (light.intensity == 1f) ? 0f : 1f;
+		mainLight.intensity = (mainLight.intensity == 1f) ? 0f : 1f;
+
+		if (turnLightsOFF) {
+			Vector2[] pathToLightSwitch = PathToLightSwitch ();
+			Vector2[] pathToDutyPosition = PathToDutyPosition ();
+
+			int enemyIndex = FindClosestEnemy (lightSwitchPosition);
+			StartCoroutine (enemies [enemyIndex].MoveToLightSwitch (pathToLightSwitch));
+			StartCoroutine (enemies [enemyIndex].MoveToDutyPosition (pathToDutyPosition));
+		}
 
 		yield return new WaitForSeconds (lightSwitchInputDelay);
 
 		lightSwitchInputReady = true;
 	}
 
-	// If the player or an enemy pressed the light switch
-	public void SwitchLights()
+
+	// Returns true if lights are off and false otherwise
+	public bool CheckLightsOff()
 	{
-		StartCoroutine (SwitchLightsCoroutine());
+		return (mainLight.intensity == 0f) ? true : false;
 	}
 
 	// Advances the game for the next level

@@ -9,6 +9,7 @@ public class Enemy : MovingObject {
 	public int visionDistance;
 	public bool canMove;
 	public List <Vector2> dangerousFloorPositions;
+	public Vector2 lightSwitchPosition;
 
 	// Use this for initialization
 	protected override void Start () {
@@ -17,14 +18,12 @@ public class Enemy : MovingObject {
 		GameController.singleton.AddEnemyToList (this);
 		dangerousFloorPositions = new List<Vector2> ();
 
-		horizontal = 1;
-
-		StartCoroutine(Look(horizontal, vertical));
+		StartCoroutine(Look());
 	}
 		
 	void Update()
 	{
-		StartCoroutine (Look (horizontal, vertical));
+		StartCoroutine (Look ());
 	}
 
 	void OnDestroy()
@@ -35,9 +34,61 @@ public class Enemy : MovingObject {
 	protected override IEnumerator SmoothMovement(Vector3 end)
 	{
 		yield return StartCoroutine (base.SmoothMovement (end));
-		StartCoroutine(Look(horizontal, vertical));
+		StartCoroutine(Look());
 	}
-		
+
+	// The enemy will follow a speficied path to return to his duty position
+	public IEnumerator MoveToDutyPosition(Vector2[] path)
+	{
+		RaycastHit2D hit;
+		int i = 0;
+		while (i < path.Length) {
+			if (endedMove) {
+				int pathX = (int)path [i].x;
+				int pathY = (int)path [i].y;
+
+				if (ChangeInDirection (pathX, pathY)) {
+					ResetLook ();
+					SaveDirection (pathX, pathY);
+				}
+				Move ((int)path [i].x, (int)path [i].y, out hit);
+				i++;
+			}
+			yield return null;
+		}
+
+		yield return new WaitForSeconds(moveTime);
+	}
+
+	// The enemy will follow a specified path to the LightSwitch
+	public IEnumerator MoveToLightSwitch(Vector2[] path)
+	{
+		RaycastHit2D hit;
+		int i = 0;
+		while (i < path.Length) {
+			if (endedMove) {
+				int pathX = (int)path [i].x;
+				int pathY = (int)path [i].y;
+
+				if (ChangeInDirection(pathX, pathY)) {
+					ResetLook ();
+					SaveDirection(pathX, pathY);
+				}
+				Move (pathX, pathY, out hit);
+				i++;
+			}
+			yield return null;
+		}
+
+		yield return new WaitForSeconds(moveTime);
+
+		bool lightsOFF = GameController.singleton.CheckLightsOff ();
+		StartCoroutine(GameController.singleton.SwitchLights(!lightsOFF));
+
+		yield return null;
+	}
+
+
 	private void MarkFloorAsDangerous(RaycastHit2D hit)
 	{
 		// Only mark the floor as dangerous if it not in the list already
@@ -119,8 +170,7 @@ public class Enemy : MovingObject {
 	{
 		RaycastHit2D[] hits;
 
-		Vector2 origin = new Vector2 (transform.position.x + horizontal, transform.position.y + vertical);
-		Vector2 direction = new Vector2 (horizontal, vertical);
+		Vector2 origin = new Vector2 (transform.position.x + direction.x, transform.position.y + direction.y);
 		float distance = visionDistance - 1;
 
 		hits = Physics2D.RaycastAll (origin, direction, distance);
@@ -139,12 +189,11 @@ public class Enemy : MovingObject {
 	// The enemy will look at his surroundings
 	// In practice, this will change the layer masks of all non-blocking objects within its vision to 'DangerFloor'
 	// All objects within this vision range are also modified graphically
-	public IEnumerator Look(int horizontal, int vertical)
+	public IEnumerator Look()
 	{		
 		RaycastHit2D[] hits;
 
 		Vector2 origin = new Vector2 ((transform.position.x), (transform.position.y));
-		Vector2 direction = new Vector2 (horizontal, vertical);
 
 		// Firstly, we will remove the floor below the enemy as DangerFloor
 		// Since the enemy can no longer see it
@@ -155,7 +204,7 @@ public class Enemy : MovingObject {
 
 		// Then we'll want to check all objects within his vision range
 		float distance = visionDistance - 1;
-		origin = new Vector2 ((transform.position.x + horizontal), (transform.position.y + vertical));
+		origin = new Vector2 ((transform.position.x + direction.x), (transform.position.y + direction.y));
 		hits = Physics2D.RaycastAll (origin, direction, distance);
 
 
@@ -194,25 +243,27 @@ public class Enemy : MovingObject {
 		return false;
 	}
 
-	private void ChangePatrolDirection(int horizontal, int vertical)
+	private void ChangePatrolDirection()
 	{
 		ResetLook ();
 
-		if (horizontal == 1) {
-			this.horizontal = 0;
-			this.vertical = 1;
-		} else if (vertical == 1) {
-			this.vertical = 0;
-			this.horizontal = -1;
-		} else if (horizontal == -1) {
-			this.horizontal = 0;
-			this.vertical = -1;
-		} else if (vertical == -1) {
-			this.vertical = 0;
-			this.horizontal = 1;
+		if (direction.x == 1) {
+			horizontal = 0;
+			vertical = 1;
+		} else if (direction.y == 1) {
+			vertical = 0;
+			horizontal = -1;
+		} else if (direction.x == -1) {
+			horizontal = 0;
+			vertical = -1;
+		} else if (direction.y == -1) {
+			vertical = 0;
+			horizontal = 1;
 		}
-			
-		StartCoroutine(Look(this.horizontal, this.vertical));
+
+		SaveDirection (horizontal, vertical);
+
+		StartCoroutine(Look());
 	}
 
 	public void Patrol()
@@ -220,16 +271,19 @@ public class Enemy : MovingObject {
 		RaycastHit2D hit;
 		RaycastHit2D[] hits;
 
+		horizontal = (int)direction.x;
+		vertical = (int)direction.y;
+
 		// Before trying to move, the enemy will check if there is a hole in front of him
 		// (Hole = destructed floor)
 		// If there is, he won't move there, and will change direction instead
-		Vector2 nextPosition = new Vector2(transform.position.x + horizontal, transform.position.y + vertical);
+		Vector2 nextPosition = new Vector2(transform.position.x + direction.x, transform.position.y + direction.y);
 		if (FindHole(nextPosition, out hits)) {
-			ChangePatrolDirection (horizontal, vertical);
+			ChangePatrolDirection ();
 		}
 
 		else if (!Move (horizontal, vertical, out hit)) {
-			ChangePatrolDirection (horizontal, vertical);
+			ChangePatrolDirection ();
 		}
 	}
 

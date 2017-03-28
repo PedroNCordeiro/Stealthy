@@ -9,6 +9,8 @@ public class BoardManager : MonoBehaviour {
 	public int boardWidth;
 	public int boardHeight;
 
+	public int enemyCount;
+
 	public GameObject topLeftWall;
 	public GameObject topRightWall;
 	public GameObject bottomLeftWall;
@@ -18,12 +20,8 @@ public class BoardManager : MonoBehaviour {
 	public GameObject leftWall;
 	public GameObject rightWall;
 	public GameObject floor;
-	public GameObject exit;
-	public GameObject enemy;
-	public GameObject crate;
-	public GameObject potion;
-	public GameObject laser;
-	public GameObject lightSwitch;
+
+	public boardObjectInfo[] objectsInfo;
 
 	private Transform boardHolder;
 
@@ -37,6 +35,7 @@ public class BoardManager : MonoBehaviour {
 	{
 		boardHolder = new GameObject("Board").transform;
 
+		// Setup floors and walls
 		for (int y = 0; y < boardHeight; y++) {
 			for (int x = 0; x < boardWidth; x++) {
 				GameObject toInstantiate = floor;
@@ -57,23 +56,20 @@ public class BoardManager : MonoBehaviour {
 				instance.transform.SetParent (boardHolder);
 			}
 		}
-		/*GameObject exitInstance = Instantiate (exit, new Vector3 (boardWidth - 2, boardHeight - 2), Quaternion.identity) as GameObject;
-		exitInstance.transform.SetParent (boardHolder);*/
 
-		GameObject crateInstance = Instantiate (crate, new Vector3 (2, 6), Quaternion.identity) as GameObject;
-		crateInstance.transform.SetParent (boardHolder);
-
-		//GameObject potionInstance = Instantiate (potion, new Vector3 (2, 2), Quaternion.identity) as GameObject;
-		//potionInstance.transform.SetParent (boardHolder);
-
-		//GameObject laserInstance = Instantiate (laser, new Vector3 (1, 4), Quaternion.identity) as GameObject;
-		//laserInstance.transform.SetParent (boardHolder);
-
-		GameObject lightSwitchInstance = Instantiate (lightSwitch, new Vector3 (1, 4), Quaternion.identity) as GameObject;
-		lightSwitchInstance.transform.SetParent (boardHolder);
-
-		Instantiate (enemy, new Vector3 (3, 1), Quaternion.identity);
-
-		Instantiate (enemy, new Vector3 (3, 4), Quaternion.identity);
+		// Setup other objects
+		for (int i = 0; i < objectsInfo.Length; i++) {
+			GameObject instance = Instantiate (objectsInfo[i].boardObject, objectsInfo[i].objectPosition, Quaternion.identity) as GameObject;
+			instance.transform.SetParent (boardHolder);
+		}
+			
 	}
+
+
+	[System.Serializable]
+	public struct boardObjectInfo {
+		public GameObject boardObject;
+		public Vector2 objectPosition;
+	}
+
 }

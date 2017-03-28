@@ -8,12 +8,8 @@ public class BoardGenerator : Editor {
 
 	public override void OnInspectorGUI() {
 		BoardManager boardManager = (BoardManager)target;
-
-		if (DrawDefaultInspector ()) {
-			if (boardManager.autoUpdate) {
-				boardManager.SetupBoard ();
-			}
-		}
+		 
+		DrawDefaultInspector ();
 
 		if (GUILayout.Button ("Generate")) {
 			boardManager.SetupBoard ();

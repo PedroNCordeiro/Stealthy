@@ -12,12 +12,20 @@ public class MovingObject : MonoBehaviour {
 	protected BoxCollider2D boxCollider;
 	protected int horizontal = 0;
 	protected int vertical = 0;
+	public Vector2 direction = new Vector2(1, 0); // Keeps the direction the moving object is facing; Starts looking right
 
 	public float moveTime;
 	public LayerMask blockingLayer;
 	[HideInInspector]
 	public bool endedMove = true;
 
+
+
+	protected virtual void Start () {
+		boxCollider = GetComponent<BoxCollider2D> ();
+		rb2D = GetComponent<Rigidbody2D> ();
+		inverseMoveTime = 1f / moveTime;
+	}
 
 	protected virtual void OnTriggerEnter2D(Collider2D other)
 	{
@@ -99,10 +107,19 @@ public class MovingObject : MonoBehaviour {
 		return false;
 	}
 
-	// Use this for initialization
-	protected virtual void Start () {
-		boxCollider = GetComponent<BoxCollider2D> ();
-		rb2D = GetComponent<Rigidbody2D> ();
-		inverseMoveTime = 1f / moveTime;
+	// Checks if the movement input given by <horizontal, vertical> differs from the previous input
+	// i.e. Checks if the object changed direction
+	protected bool ChangeInDirection(int horizontal, int vertical)
+	{
+		if (horizontal != direction.x || vertical != direction.y) {
+			return true;
+		}
+		return false;
+	}
+
+	// Save the direction the object is facing
+	protected void SaveDirection(int horizontal, int vertical)
+	{
+		direction = new Vector2 (horizontal, vertical);
 	}
 }
