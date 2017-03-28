@@ -4,27 +4,46 @@ using UnityEngine;
 
 public class Player : MovingObject {
 
-	private bool laserKeyPressed = false;
 	private bool interactionKeyPressed = false;
 
-	private bool hasLaser = false;
-
 	private bool movementInputReady = true;
-	private bool laserInputReady = true;
-
-	private float invisibilityTime;
-
 	public float movementInputDelay;
+
+
+	public struct Item {
+		public bool keyPressed;
+		public int charges;
+		public bool inputReady;
+		public float inputDelay;
+	}
+
+	private Item laser;
 	public float laserInputDelay;
-	[Range(1f, float.MaxValue)]
+
+
+	public struct Consumable {
+		public float timeLeft;
+		public float duration;
+		public bool isActive;
+	}
+
+	private Consumable invisibilityPotion;
 	public float potionOfInvisilibityDuration;
-	public bool isInvisible = false;
 
 
 	protected override void Start ()
 	{
-			base.Start ();
-			GameController.singleton.AddPlayer (this);
+		base.Start ();
+		GameController.singleton.AddPlayer (this);
+
+		laser.keyPressed = false;
+		laser.charges = 0;
+		laser.inputReady = true;
+		laser.inputDelay = laserInputDelay;
+
+		invisibilityPotion.isActive = false;
+		invisibilityPotion.duration = potionOfInvisilibityDuration;
+
 	}
 
 	// Update is called once per frame
@@ -37,7 +56,7 @@ public class Player : MovingObject {
 		base.OnTriggerEnter2D(other);
 
 		// Check if GameOver
-		if (other.gameObject.layer == LayerMask.NameToLayer ("DangerFloor") && !isInvisible) {
+		if (other.gameObject.layer == LayerMask.NameToLayer ("DangerFloor") && !invisibilityPotion.isActive) {
 			Die ();
 		}
 
@@ -47,13 +66,13 @@ public class Player : MovingObject {
 
 		else if (other.gameObject.tag == "Potion") {
 			Destroy (other.gameObject);
-			isInvisible = true;
-			StartCoroutine (RemainInvisible (potionOfInvisilibityDuration));
+			invisibilityPotion.isActive = true;
+			StartCoroutine (RemainInvisible (invisibilityPotion.duration));
 		}
 
 		else if (other.gameObject.tag == "Laser") {
 			Destroy (other.gameObject);
-			hasLaser = true;
+			laser.charges = 1;
 		}
 	}
 		
@@ -84,18 +103,18 @@ public class Player : MovingObject {
 	// Reads all inputs related to player items
 	private IEnumerator CheckItemInputs()
 	{
-		if (laserInputReady) {
+		if (laser.inputReady) {
 
-			laserKeyPressed = Input.GetKeyDown (KeyCode.Z);
-			if (laserKeyPressed && hasLaser) {
+			laser.keyPressed = Input.GetKeyDown (KeyCode.Z);
+			if (laser.keyPressed && laser.charges > 0) {
 
-				laserInputReady = false;
+				laser.inputReady = false;
 
 				UseLaser ();
 
 				yield return new WaitForSeconds (laserInputDelay);
 
-				laserInputReady = true;
+				laser.inputReady = true;
 			}
 		}
 
@@ -147,7 +166,7 @@ public class Player : MovingObject {
 		hits = Physics2D.RaycastAll (position, position, 0);
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
-				Debug.Log ("Encontrei Transform nula!");
+				Debug.Log ("Found null transform!");
 				continue;
 			}
 			if (hits [i].transform.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
@@ -165,7 +184,7 @@ public class Player : MovingObject {
 		hits = Physics2D.RaycastAll (position, position, 0);
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
-				Debug.Log ("Encontrei Transform nula!");
+				Debug.Log ("Found null transform!");
 				continue;
 			}
 			if (hits [i].transform.gameObject.layer != LayerMask.NameToLayer ("BlockingLayer") && hits[i].transform.gameObject.tag != "Floor") {
@@ -196,14 +215,14 @@ public class Player : MovingObject {
 		if (CanUseLaser(floorPosition, out hits)) {
 			for (int i = 0; i < hits.Length; i++) {
 				if (hits [i].transform == null) {
-					Debug.Log ("Encontrei uma transform nula!");
+					Debug.Log ("Found null transform!");
 					continue;
 				}
 				hits [i].transform.gameObject.tag = "LaserFloor";
 				Floor floor = hits [i].transform.GetComponent<Floor> () as Floor;
 				floor.DamageFloorByLaser ();
 			}
-			//hasLaser = false;
+			laser.charges--;
 		}
 	}
 
@@ -239,7 +258,7 @@ public class Player : MovingObject {
 
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
-				Debug.Log ("Encontrei transform nula");
+				Debug.Log ("Found null transform!");
 				continue;
 			}
 			if (hits [i].transform.gameObject.tag == "LightSwitch") {
@@ -255,18 +274,23 @@ public class Player : MovingObject {
 	// Make the player invisible for a given duration
 	private IEnumerator RemainInvisible(float duration)
 	{
-		invisibilityTime = duration;
-		while (invisibilityTime > float.Epsilon) {
-			invisibilityTime -= Time.deltaTime;
+		invisibilityPotion.timeLeft = duration;
+		while (invisibilityPotion.timeLeft > float.Epsilon) {
+			invisibilityPotion.timeLeft -= Time.deltaTime;
 			yield return null;
 		}
 
-		isInvisible = false;
+		invisibilityPotion.isActive = false;
+	}
+
+	// Checks if the player is invisible
+	public bool isInvisible()
+	{
+		return invisibilityPotion.isActive;
 	}
 
 	public void Die()
 	{
 		Destroy (gameObject);
 	}
-
 }

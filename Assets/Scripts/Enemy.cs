@@ -71,7 +71,7 @@ public class Enemy : MovingObject {
 				int pathY = (int)path [i].y;
 
 				if (ChangeInDirection(pathX, pathY)) {
-					ResetLook ();
+					ResetLook (); 
 					SaveDirection(pathX, pathY);
 				}
 				Move (pathX, pathY, out hit);
@@ -116,7 +116,7 @@ public class Enemy : MovingObject {
 	{
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
-				Debug.Log ("Encontrei Transform nula!");
+				Debug.Log ("Found null transform!");
 				continue;
 			} else if (hits [i].transform.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
 				blockingObjectPosition = new Vector2 (hits [i].transform.position.x, hits [i].transform.position.y);
@@ -141,7 +141,7 @@ public class Enemy : MovingObject {
 
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
-				Debug.Log ("Encontrei Transform nula!");
+				Debug.Log ("Found null transform!");
 				continue;
 			}
 			MarkFloorAsRegular (hits [i]);
@@ -155,7 +155,7 @@ public class Enemy : MovingObject {
 	{
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
-				Debug.Log ("Encontrei Transform nula!");
+				Debug.Log ("Found null transform!");
 				continue;
 			} else if (hits [i].transform.gameObject.tag == "Player") {
 				continue;
@@ -177,7 +177,7 @@ public class Enemy : MovingObject {
 
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
-				Debug.Log ("Encontrei Transform nula!");
+				Debug.Log ("Found null transform!");
 				continue;
 			}
 			if (hits[i].transform.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
@@ -233,7 +233,7 @@ public class Enemy : MovingObject {
 		hits = Physics2D.RaycastAll (position, position, 0);
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
-				Debug.Log ("Transform nula encontrada!");
+				Debug.Log ("Found null transform!");
 				continue;
 			}
 			else if (hits[i].transform.gameObject.tag == "DestructedFloor") {

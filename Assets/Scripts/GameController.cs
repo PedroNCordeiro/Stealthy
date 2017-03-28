@@ -55,7 +55,7 @@ public class GameController : MonoBehaviour {
 
 	public bool IsPlayerInvisible()
 	{
-		return player.isInvisible;
+		return player.isInvisible ();
 	}
 
 	private void MoveEnemies()
@@ -77,7 +77,6 @@ public class GameController : MonoBehaviour {
 			}
 			for (int j = 0; j < enemies[i].dangerousFloorPositions.Count; j++) {
 				if (enemies[i].dangerousFloorPositions[j].x == floorPosition.x && enemies[i].dangerousFloorPositions[j].y == floorPosition.y) {
-					Debug.Log ("FloorSeenByAnotherEnemy is TRUE");
 					return true;
 				}	
 			}
@@ -146,8 +145,6 @@ public class GameController : MonoBehaviour {
 		Vector2 lightSwitchPosition = lightSwitch.transform.position;
 
 		lightSwitchInputReady = false;
-
-		Debug.Log ("Found a light switch");
 
 		mainLight.intensity = (mainLight.intensity == 1f) ? 0f : 1f;
 
