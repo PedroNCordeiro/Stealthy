@@ -56,8 +56,6 @@ public class Enemy : MovingObject {
 			}
 			yield return null;
 		}
-
-		yield return new WaitForSeconds(moveTime);
 	}
 
 	// The enemy will follow a specified path to the LightSwitch
@@ -82,8 +80,7 @@ public class Enemy : MovingObject {
 
 		yield return new WaitForSeconds(moveTime);
 
-		bool lightsOFF = GameController.singleton.CheckLightsOff ();
-		StartCoroutine(GameController.singleton.SwitchLights(!lightsOFF));
+		StartCoroutine(GameController.singleton.SwitchLights());
 
 		yield return null;
 	}
@@ -119,7 +116,7 @@ public class Enemy : MovingObject {
 				Debug.Log ("Found null transform!");
 				continue;
 			} else if (hits [i].transform.gameObject.layer == LayerMask.NameToLayer ("BlockingLayer")) {
-				blockingObjectPosition = new Vector2 (hits [i].transform.position.x, hits [i].transform.position.y);
+				blockingObjectPosition = hits[i].transform.position;
 				if (hits [i].transform.gameObject.tag == "Player") {
 					if (GameController.singleton.IsPlayerInvisible ()) {
 						continue;
@@ -211,7 +208,7 @@ public class Enemy : MovingObject {
 		// All objects are gonna be checked if they are blocking further vision (objects from the layer 'BlockingLayer')
 		// If so, we will store the first blocking object's position
 		// And mark all objects until that point as Dangerous
-		// (Dangerous objects are objects seen by the enemy)
+		// (Dangerous objects are objects in enemy's sight)
 
 		if (BlockingObjectInVision (hits)) {
 			float distanceToBlockingObject = Vector2.Distance (origin, blockingObjectPosition);

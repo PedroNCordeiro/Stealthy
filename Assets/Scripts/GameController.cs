@@ -11,11 +11,8 @@ public class GameController : MonoBehaviour {
 
 	public static GameController singleton;
 	public GameObject boardManager;
-	public bool moveEnemy = true;
 	public bool lightSwitchInputReady = true;
 	public float lightSwitchInputDelay;
-	public float distance1;
-	public float distance2;
 
 	void Awake () {
 		if (singleton == null) {
@@ -98,9 +95,7 @@ public class GameController : MonoBehaviour {
 				idx = i;
 			}
 		}
-		distance1 = Vector2.Distance (enemies [0].transform.position, endPosition);
-		distance2 = Vector2.Distance (enemies [1].transform.position, endPosition);
-
+	
 		return idx;
 	}
 
@@ -136,10 +131,9 @@ public class GameController : MonoBehaviour {
 	}
 
 	// Activated if the player or an enemy pressed the light switch
-	// The bool parameter indicates whether the lights are to become OFF
-	// If turnLightsOFF is TRUE, we will find the closest enemy to the light switch
-	// And command it to go turn the lights ON
-	public IEnumerator SwitchLights(bool turnLightsOFF)
+	// If the lights are turned off, we will find the closest enemy to the light switch
+	// And command it to go turn the lights on
+	public IEnumerator SwitchLights()
 	{
 		GameObject lightSwitch = GameObject.FindGameObjectWithTag ("LightSwitch");
 		Vector2 lightSwitchPosition = lightSwitch.transform.position;
@@ -148,7 +142,7 @@ public class GameController : MonoBehaviour {
 
 		mainLight.intensity = (mainLight.intensity == 1f) ? 0f : 1f;
 
-		if (turnLightsOFF) {
+		if (mainLight.intensity == 0f) {
 			Vector2[] pathToLightSwitch = PathToLightSwitch ();
 			Vector2[] pathToDutyPosition = PathToDutyPosition ();
 
@@ -161,14 +155,7 @@ public class GameController : MonoBehaviour {
 
 		lightSwitchInputReady = true;
 	}
-
-
-	// Returns true if lights are off and false otherwise
-	public bool CheckLightsOff()
-	{
-		return (mainLight.intensity == 0f) ? true : false;
-	}
-
+		
 	// Advances the game for the next level
 	public void NextLevel()
 	{

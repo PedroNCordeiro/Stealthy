@@ -4,13 +4,10 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour {
 
-	public static BoardManager singleton;
-	public bool autoUpdate;
+	private Transform boardHolder;
+
 	public int boardWidth;
 	public int boardHeight;
-
-	public int enemyCount;
-
 	public GameObject topLeftWall;
 	public GameObject topRightWall;
 	public GameObject bottomLeftWall;
@@ -21,9 +18,14 @@ public class BoardManager : MonoBehaviour {
 	public GameObject rightWall;
 	public GameObject floor;
 
+	[System.Serializable]
+	public struct boardObjectInfo {
+		public GameObject boardObject;
+		public Vector2 objectPosition;
+	}
+
 	public boardObjectInfo[] objectsInfo;
 
-	private Transform boardHolder;
 
 
 	void Awake()
@@ -64,12 +66,4 @@ public class BoardManager : MonoBehaviour {
 		}
 			
 	}
-
-
-	[System.Serializable]
-	public struct boardObjectInfo {
-		public GameObject boardObject;
-		public Vector2 objectPosition;
-	}
-
 }

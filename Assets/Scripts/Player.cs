@@ -88,9 +88,7 @@ public class Player : MovingObject {
 
 				if (FindInteractiveObject (out objectTag)) {
 					if (objectTag == "LightSwitch") {
-
-						bool lightsOFF = GameController.singleton.CheckLightsOff ();
-						StartCoroutine(GameController.singleton.SwitchLights(!lightsOFF));
+						StartCoroutine(GameController.singleton.SwitchLights());
 					}
 				}
 
@@ -228,7 +226,6 @@ public class Player : MovingObject {
 
 	// The player will try to move if there is not a blocking object in the way
 	// If there is, and it is a crate, he will push it
-	// If there is a light switch, he'll click it
 	private void MovePlayer()
 	{
 		RaycastHit2D hit;
