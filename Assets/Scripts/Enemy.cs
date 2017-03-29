@@ -186,6 +186,46 @@ public class Enemy : MovingObject {
 	// The enemy will look at his surroundings
 	// In practice, this will change the layer masks of all non-blocking objects within its vision to 'DangerFloor'
 	// All objects within this vision range are also modified graphically
+	public IEnumerator Look_old()
+	{		
+		RaycastHit2D[] hits;
+
+		Vector2 origin = new Vector2 ((transform.position.x), (transform.position.y));
+
+		// Firstly, we will remove the floor below the enemy as DangerFloor
+		// Since the enemy can no longer see it
+		boxCollider.enabled = false;
+		UpdateFloorBelow(origin, out hits);
+		boxCollider.enabled = true;
+
+
+		// Then we'll want to check all objects within his vision range
+		float distance = visionDistance - 1;
+		origin = new Vector2 ((transform.position.x + direction.x), (transform.position.y + direction.y));
+		hits = Physics2D.RaycastAll (origin, direction, distance);
+
+
+		// All objects are gonna be checked if they are blocking further vision (objects from the layer 'BlockingLayer')
+		// If so, we will store the first blocking object's position
+		// And mark all objects until that point as Dangerous
+		// (Dangerous objects are objects in enemy's sight)
+
+		if (BlockingObjectInVision (hits)) {
+			float distanceToBlockingObject = Vector2.Distance (origin, blockingObjectPosition);
+			if (distanceToBlockingObject < 1) {
+				yield break;
+			}
+			hits = Physics2D.RaycastAll (origin, direction, distanceToBlockingObject - 1);
+		}
+
+		MarkObjectsAsDangerous (hits);
+
+		yield return null;
+	}
+
+	// The enemy will look at his surroundings
+	// In practice, this will change the layer masks of all non-blocking objects within its vision to 'DangerFloor'
+	// All objects within this vision range are also modified graphically
 	public IEnumerator Look()
 	{		
 		RaycastHit2D[] hits;
@@ -222,7 +262,8 @@ public class Enemy : MovingObject {
 
 		yield return null;
 	}
-		
+
+
 	// Returns true if there is a hole (destructed floor) in the position given by <position>
 	// And returns false otherwise
 	private bool FindHole(Vector2 position, out RaycastHit2D[] hits)
