@@ -72,10 +72,14 @@ public class GameController : MonoBehaviour {
 			if (enemies [i] == askingEnemy) {
 				continue;
 			}
-			for (int j = 0; j < enemies[i].dangerousFloorPositions.Count; j++) {
+			/*for (int j = 0; j < enemies[i].dangerousFloorPositions.Count; j++) {
 				if (enemies[i].dangerousFloorPositions[j].x == floorPosition.x && enemies[i].dangerousFloorPositions[j].y == floorPosition.y) {
 					return true;
-				}	
+				}
+
+			}*/
+			if (enemies [i].dangerousFloorPositions.ContainsKey (floorPosition)) {
+				return true;
 			}
 		}
 

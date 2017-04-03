@@ -5,18 +5,22 @@ using UnityEngine;
 public class Enemy : MovingObject {
 
 	private Vector2 blockingObjectPosition = Vector2.zero;
+	private bool blockingObjectInVision = false;
 
 	public int visionDistance;
 	public bool canMove;
-	public List <Vector2> dangerousFloorPositions;
+	public Dictionary <Vector2, List <Vector2>> dangerousFloorPositions;
 	public Vector2 lightSwitchPosition;
+	public float fovAngle;
 
 	// Use this for initialization
 	protected override void Start () {
 		base.Start ();
 
 		GameController.singleton.AddEnemyToList (this);
-		dangerousFloorPositions = new List<Vector2> ();
+		dangerousFloorPositions = new Dictionary<Vector2, List <Vector2>> ();
+
+		direction = new Vector2 (1, 0); // facing upwards
 
 		StartCoroutine(Look());
 	}
@@ -86,30 +90,39 @@ public class Enemy : MovingObject {
 	}
 
 
-	private void MarkFloorAsDangerous(RaycastHit2D hit)
+	private void MarkFloorAsDangerous(RaycastHit2D hit, Vector2 rayRotation)
 	{
 		// Only mark the floor as dangerous if it not in the list already
-		if (!dangerousFloorPositions.Contains (hit.transform.position)) {
-			dangerousFloorPositions.Add (hit.transform.position);
+		if (!dangerousFloorPositions.ContainsKey (hit.transform.position)) {
+			List <Vector2> rotation = new List<Vector2> ();
+			rotation.Add (rayRotation);
+
+			dangerousFloorPositions.Add (hit.transform.position, rotation);
 			hit.transform.gameObject.layer = LayerMask.NameToLayer ("DangerFloor");
 			hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.cyan;
+		} else {
+			if (!dangerousFloorPositions [hit.transform.position].Contains (rayRotation)) {
+				dangerousFloorPositions [hit.transform.position].Add (rayRotation);
+			}
 		}
 	}
 
-	private void MarkFloorAsRegular(RaycastHit2D hit)
+	private void MarkFloorAsRegular(RaycastHit2D hit, Vector2 rayDirection)
 	{
-		dangerousFloorPositions.Remove (hit.transform.position);
-
-		if (!GameController.singleton.IsFloorSeenByAnotherEnemy(hit.transform.position, this)) {
-			hit.transform.gameObject.layer = LayerMask.NameToLayer ("Floor");
-			hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
+		dangerousFloorPositions [hit.transform.position].Remove (rayDirection);
+		if (dangerousFloorPositions [hit.transform.position].Count == 0) {
+			dangerousFloorPositions.Remove (hit.transform.position);
+			if (!GameController.singleton.IsFloorSeenByAnotherEnemy (hit.transform.position, this)) {
+				hit.transform.gameObject.layer = LayerMask.NameToLayer ("Floor");
+				hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
+			}
 		}
 	}
 
 	// Checks if there is a blocking object on enemy's sight
 	// Also specifically checks if that blocking object is the player
 	// If so, it'll be Game Over, unless the player has taken a potion of invisibility
-	private bool BlockingObjectInVision(RaycastHit2D[] hits)
+	private bool BlockingObjectInVision(RaycastHit2D[] hits, Vector2 rayRotation)
 	{
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
@@ -123,7 +136,7 @@ public class Enemy : MovingObject {
 					}
 					GameController.singleton.GameOver ();
 				}
-				ResetLook ();
+				ResetLookRay (rayRotation);
 				return true;
 			}
 		}
@@ -141,29 +154,32 @@ public class Enemy : MovingObject {
 				Debug.Log ("Found null transform!");
 				continue;
 			}
-			MarkFloorAsRegular (hits [i]);
+			//MarkFloorAsRegular (hits [i]);
 		}
 	}
-
+		
 	// All objects hit by the input RaycastHit array will change their layer to 'DangerousLayer'
 	// With the exception of the player when invisible
 	// If the player is invisible, he will keep its layer (blocking layer)
-	private void MarkObjectsAsDangerous(RaycastHit2D[] hits)
+	private void MarkObjectsAsDangerous(RaycastHit2D[] hits, Vector2 rayRotation)
 	{
 		for (int i = 0; i < hits.Length; i++) {
 			if (hits [i].transform == null) {
 				Debug.Log ("Found null transform!");
 				continue;
-			} else if (hits [i].transform.gameObject.tag == "Player") {
+			} 
+			if (hits [i].transform.gameObject.tag == "Player") {
 				continue;
 			}
-			MarkFloorAsDangerous (hits [i]);
+			if (hits [i].transform.gameObject.layer != LayerMask.NameToLayer ("BlockingLayer")) {
+				MarkFloorAsDangerous (hits [i], rayRotation);
+			}
 		}
 	}
 
 	// All objects previously marked as Dangerous
 	// will now be reset (their layer mask will become "Floor" again)
-	private void ResetLook()
+	private void ResetLook_bkup()
 	{
 		RaycastHit2D[] hits;
 
@@ -178,15 +194,90 @@ public class Enemy : MovingObject {
 				continue;
 			}
 			if (hits[i].transform.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
-				MarkFloorAsRegular (hits [i]);
+				//MarkFloorAsRegular (hits [i]);
 			}
+		}
+	}
+
+	// All objects previously marked as Dangerous
+	// will now be reset (their layer mask will become "Floor" again)
+	private void ResetLookRay(Vector2 rayDirection)
+	{
+		RaycastHit2D[] hits;
+
+		//Vector2 origin = blockingObjectPosition;
+		Vector2 origin = transform.position;
+		float distanceToBlockingObject = Vector2.Distance (origin, blockingObjectPosition);
+		float distance = visionDistance - distanceToBlockingObject;
+
+		//hits = Physics2D.RaycastAll (origin, rayDirection, distance);
+		hits = Physics2D.RaycastAll (origin, rayDirection, visionDistance/*, LayerMask.NameToLayer("DangerFloor")*/);
+		//Debug.DrawRay (blockingObjectPosition, rayDirection * distance);
+
+		for (int i = 0; i < hits.Length; i++) {
+			if (hits [i].transform == null) {
+				Debug.Log ("Found null transform!");
+				continue;
+			}
+			if (hits[i].transform.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
+				MarkFloorAsRegular (hits [i], rayDirection);
+			}
+		}
+			
+	}
+
+	// All objects previously marked as Dangerous
+	// will now be reset (their layer mask will become "Floor" again)
+	private void ResetLook()
+	{
+		RaycastHit2D[] hits;
+		Vector2 origin = transform.position;
+
+
+		float distance = visionDistance - 1;
+		// Origin will be in the center of the tile that is in front of the enemy
+		origin = new Vector2 ((transform.position.x + direction.x), (transform.position.y + direction.y));
+
+		float fovAngleRadians = Mathf.Deg2Rad * fovAngle;
+		int maxVisionWidth = (int)(Mathf.Ceil(Mathf.Tan (fovAngleRadians) * distance));
+
+		for (int i = -maxVisionWidth; i <= maxVisionWidth; i++) {
+			Vector2 endPoint;
+
+			// Horizontal direction
+			if (direction.x != 0) {
+				endPoint = new Vector2 (direction.x + distance * direction.x, direction.y + i);
+			}
+
+			// Vertical direction
+			else {
+				endPoint = new Vector2 (direction.x + i, direction.y + distance * direction.y);
+			}
+
+			float angle = Vector2.Angle (direction, endPoint);	
+
+			Vector3 rayRotation = Quaternion.AngleAxis (angle*Mathf.Sign(i), transform.forward) * direction;
+
+			hits = Physics2D.RaycastAll (origin, rayRotation, distance, LayerMask.NameToLayer("DangerFloor"));	
+
+			for (int j = 0; j < hits.Length; j++) {
+				if (hits [j].transform == null) {
+					Debug.Log ("Found null transform!");
+					continue;
+				}
+				if (hits[j].transform.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
+					//MarkFloorAsRegular (hits [j]);
+				}
+			}
+
+			//yield return null;
 		}
 	}
 
 	// The enemy will look at his surroundings
 	// In practice, this will change the layer masks of all non-blocking objects within its vision to 'DangerFloor'
 	// All objects within this vision range are also modified graphically
-	public IEnumerator Look_old()
+	public IEnumerator Look_bkup()
 	{		
 		RaycastHit2D[] hits;
 
@@ -210,15 +301,18 @@ public class Enemy : MovingObject {
 		// And mark all objects until that point as Dangerous
 		// (Dangerous objects are objects in enemy's sight)
 
-		if (BlockingObjectInVision (hits)) {
+		//blockingObjectInVision = BlockingObjectInVision (hits);
+
+		if (blockingObjectInVision) {
 			float distanceToBlockingObject = Vector2.Distance (origin, blockingObjectPosition);
 			if (distanceToBlockingObject < 1) {
 				yield break;
 			}
+
 			hits = Physics2D.RaycastAll (origin, direction, distanceToBlockingObject - 1);
 		}
 
-		MarkObjectsAsDangerous (hits);
+		//MarkObjectsAsDangerous (hits);
 
 		yield return null;
 	}
@@ -229,38 +323,68 @@ public class Enemy : MovingObject {
 	public IEnumerator Look()
 	{		
 		RaycastHit2D[] hits;
+		Vector2 origin = transform.position;
 
-		Vector2 origin = new Vector2 ((transform.position.x), (transform.position.y));
 
 		// Firstly, we will remove the floor below the enemy as DangerFloor
 		// Since the enemy can no longer see it
-		boxCollider.enabled = false;
-		UpdateFloorBelow(origin, out hits);
-		boxCollider.enabled = true;
+		//boxCollider.enabled = false;
+		//UpdateFloorBelow(origin, out hits);
+		//boxCollider.enabled = true;
 
 
-		// Then we'll want to check all objects within his vision range
 		float distance = visionDistance - 1;
-		origin = new Vector2 ((transform.position.x + direction.x), (transform.position.y + direction.y));
-		hits = Physics2D.RaycastAll (origin, direction, distance);
+		// Origin will be in the center of the tile that is in front of the enemy
+		//origin = new Vector2 ((transform.position.x + direction.x), (transform.position.y + direction.y));
+		origin = transform.position;
 
+		float fovAngleRadians = Mathf.Deg2Rad * fovAngle;
+		int maxVisionWidth = (int)(Mathf.Ceil(Mathf.Tan (fovAngleRadians) * distance));
 
-		// All objects are gonna be checked if they are blocking further vision (objects from the layer 'BlockingLayer')
-		// If so, we will store the first blocking object's position
-		// And mark all objects until that point as Dangerous
-		// (Dangerous objects are objects in enemy's sight)
+		for (int i = -maxVisionWidth; i <= maxVisionWidth; i++) {
 
-		if (BlockingObjectInVision (hits)) {
-			float distanceToBlockingObject = Vector2.Distance (origin, blockingObjectPosition);
-			if (distanceToBlockingObject < 1) {
-				yield break;
+			Vector2 endPoint;
+
+			distance = visionDistance;
+
+			// Horizontal direction
+			if (direction.x != 0) {
+				endPoint = new Vector2 (direction.x + distance * direction.x, direction.y + i);
 			}
-			hits = Physics2D.RaycastAll (origin, direction, distanceToBlockingObject - 1);
+
+			// Vertical direction
+			else {
+				endPoint = new Vector2 (direction.x + i, direction.y + distance * direction.y);
+			}
+				
+			float angle = Vector2.Angle (direction, endPoint);	
+
+			Vector3 rayRotation = Quaternion.AngleAxis (angle * Mathf.Sign (i), transform.forward) * direction;
+
+			boxCollider.enabled = false;
+			hits = Physics2D.RaycastAll (origin, rayRotation, distance);
+			boxCollider.enabled = true;
+			Debug.DrawRay (origin, rayRotation * distance);
+
+
+			if (BlockingObjectInVision (hits, rayRotation)) {
+				float distanceToBlockingObject = Vector2.Distance (origin, blockingObjectPosition);
+
+				if (distanceToBlockingObject < 1) {
+					yield break;
+				}
+
+
+				// Mark every floor before blocking object as dangerous
+				hits = Physics2D.RaycastAll (origin, rayRotation, distanceToBlockingObject - 1);
+			}
+
+			MarkObjectsAsDangerous (hits, rayRotation);
+
+			yield return null;
 		}
+			
 
-		MarkObjectsAsDangerous (hits);
-
-		yield return null;
 	}
 
 
