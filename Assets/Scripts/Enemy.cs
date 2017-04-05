@@ -16,12 +16,10 @@ public class Enemy : MovingObject {
 	protected override void Start () {
 		base.Start ();
 
-		GameController.singleton.AddEnemyToList (this);
 		dangerousFloorPositions = new Dictionary<Vector2, List <Vector2>> ();
+		GameController.singleton.AddEnemyToList (this);
 
 		direction = new Vector2 (1, 0); // facing upwards
-
-		Look();
 	}
 		
 	void Update()
@@ -172,10 +170,13 @@ public class Enemy : MovingObject {
 				Debug.Log ("Found null transform!");
 				continue;
 			}
-			if (hits[i].transform.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) {
-				dangerousFloorPositions [hits[i].transform.position].Remove (rayDirection);
-				if (dangerousFloorPositions [hits[i].transform.position].Count == 0) {
-					MarkFloorAsRegular (hits [i], rayDirection);
+			if (hits[i].transform.gameObject.layer == LayerMask.NameToLayer("DangerFloor")) { 
+				if (dangerousFloorPositions.ContainsKey (hits [i].transform.position)) {
+					dangerousFloorPositions [hits [i].transform.position].Remove (rayDirection);
+				
+					if (dangerousFloorPositions [hits [i].transform.position].Count == 0) {
+						MarkFloorAsRegular (hits [i], rayDirection);
+					}
 				}
 			}
 		}
