@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public class Enemy : MovingObject {
@@ -89,7 +89,7 @@ public class Enemy : MovingObject {
 
 	private void MarkFloorAsDangerous(RaycastHit2D hit, Vector2 rayRotation)
 	{
-		// Only mark the floor as dangerous if it not in the list already
+		// Only mark the floor as dangerous if its position isn't in the <dangerousFloorPositions> list
 		if (!dangerousFloorPositions.ContainsKey (hit.transform.position)) {
 			List <Vector2> rotation = new List<Vector2> ();
 			rotation.Add (rayRotation);
@@ -99,6 +99,9 @@ public class Enemy : MovingObject {
 			hit.transform.gameObject.GetComponent<SpriteRenderer> ().color = Color.cyan;
 		} 
 
+		// In case the floor's position is in the list, we want to add every angle that 'sees' that floor
+		// This is useful because if there is a blocking object in sight, it will no longer be seen (dangerous) ONLY IF
+		// not visible by any angle
 		else if (!dangerousFloorPositions [hit.transform.position].Contains (rayRotation)) {
 				dangerousFloorPositions [hit.transform.position].Add (rayRotation);
 		}
@@ -155,9 +158,9 @@ public class Enemy : MovingObject {
 		}
 	}
 		
-	// All objects previously marked as Dangerous
+	// All objects previously marked as Dangerous in the direction <rayDirection>
 	// will now be reset (their layer mask will become "Floor" again)
-	private void ResetLookRay(Vector2 rayDirection)
+	private void UpdateFloorsAfterBlockingObject(Vector2 rayDirection)
 	{
 		RaycastHit2D[] hits;
 
@@ -183,34 +186,48 @@ public class Enemy : MovingObject {
 			
 	}
 
-	// After the enemy moves, some floor tiles will be out of his vision
-	private void ResetLookAfterLastMove()
+	// Returns the widest floor in sight
+	private int GetWidestFloor(float angle, float distance)
+	{
+		float angleRad = Mathf.Deg2Rad * angle;
+
+		return (int)(Mathf.Ceil(Mathf.Tan (angleRad) * distance));
+	}
+		
+	private Vector3 GetRayRotation(int tileOffset, float distance)
+	{
+		Vector2 endPoint;
+
+		// Horizontal direction
+		if (direction.x != 0) {
+			endPoint = new Vector2 (direction.x + distance * direction.x, direction.y + tileOffset);
+		}
+		// Vertical direction
+		else {
+			endPoint = new Vector2 (direction.x + tileOffset, direction.y + distance * direction.y);
+		}
+
+		float angle = Vector2.Angle (direction, endPoint);
+
+		return Quaternion.AngleAxis (angle*Mathf.Sign(tileOffset), transform.forward) * direction;
+	}
+
+	// After the enemy moves, some floor tiles will be out of sight
+	private void UpdateFloorsAfterLastMove()
 	{
 		RaycastHit2D[] hits;
-		Vector2 origin = transform.position;
-
+		// The origin of the raycasts will be in the previous position (before last moving)
+		Vector2 origin = new Vector2 (transform.position.x - direction.x, transform.position.y - direction.y);
 		float distance = visionDistance +1f;
-		origin = new Vector2 (transform.position.x - direction.x, transform.position.y - direction.y);
 
-		float fovAngleRadians = Mathf.Deg2Rad * fovAngle;
-		int maxVisionWidth = (int)(Mathf.Ceil(Mathf.Tan (fovAngleRadians) * distance));
+		// The vision will be calculated like a triangle. 
+		// From the vision distance and angle we can deduct the rest of the triangle variables
+		int widestFloor = GetWidestFloor(fovAngle, distance);
 
-		for (int i = -maxVisionWidth; i <= maxVisionWidth; i++) {
-			Vector2 endPoint;
+		// We will raycast several lines from the eye of the enemy to the different triangle points (hereby called <endPoint>)
+		for (int i = -widestFloor; i <= widestFloor; i++) {
 
-			// Horizontal direction
-			if (direction.x != 0) {
-				endPoint = new Vector2 (direction.x + distance * direction.x, direction.y + i);
-			}
-
-			// Vertical direction
-			else {
-				endPoint = new Vector2 (direction.x + i, direction.y + distance * direction.y);
-			}
-
-			float angle = Vector2.Angle (direction, endPoint);	
-
-			Vector3 rayRotation = Quaternion.AngleAxis (angle*Mathf.Sign(i), transform.forward) * direction;
+			Vector3 rayRotation = GetRayRotation (i, distance);
 
 			hits = Physics2D.RaycastAll (origin, rayRotation, distance);	
 
@@ -227,33 +244,20 @@ public class Enemy : MovingObject {
 	}
 
 	// All objects previously marked as Dangerous
-	// will now be reset (their layer mask will become "Floor" again)
+	// Will now be reset (their layer mask will become "Floor" again)
 	private void ResetLook()
 	{
 		RaycastHit2D[] hits;
 		Vector2 origin = transform.position;
 
-		origin = transform.position;
+		// The vision will be calculated like a triangle. 
+		// From the vision distance and angle we can deduct the rest of the triangle variables
+		int widestFloor = GetWidestFloor(fovAngle, visionDistance);
 
-		float fovAngleRadians = Mathf.Deg2Rad * fovAngle;
-		int maxVisionWidth = (int)(Mathf.Ceil(Mathf.Tan (fovAngleRadians) * visionDistance));
+		// We will raycast several lines from the eye of the enemy to the different triangle points (hereby called <endPoint>)
+		for (int i = -widestFloor; i <= widestFloor; i++) {
 
-		for (int i = -maxVisionWidth; i <= maxVisionWidth; i++) {
-			Vector2 endPoint;
-
-			// Horizontal direction
-			if (direction.x != 0) {
-				endPoint = new Vector2 (direction.x + visionDistance * direction.x, direction.y + i);
-			}
-
-			// Vertical direction
-			else {
-				endPoint = new Vector2 (direction.x + i, direction.y + visionDistance * direction.y);
-			}
-
-			float angle = Vector2.Angle (direction, endPoint);	
-
-			Vector3 rayRotation = Quaternion.AngleAxis (angle*Mathf.Sign(i), transform.forward) * direction;
+			Vector3 rayRotation = GetRayRotation (i, visionDistance);
 
 			hits = Physics2D.RaycastAll (origin, rayRotation, visionDistance);	
 
@@ -277,47 +281,33 @@ public class Enemy : MovingObject {
 		Vector2 origin = transform.position;
 
 		// Firstly, we will remove the floor tiles that the enemy no longer sees (because of his movement)
-		ResetLookAfterLastMove();
+		UpdateFloorsAfterLastMove();
 
-		// Origin will be in the center of the tile that is in front of the enemy
-		origin = transform.position;
+		// The vision will be calculated like a triangle. 
+		// From the vision distance and angle we can deduct the rest of the triangle variables
+		int widestFloor = GetWidestFloor(fovAngle, visionDistance);
 
-		float fovAngleRadians = Mathf.Deg2Rad * fovAngle;
-		int maxVisionWidth = (int)(Mathf.Ceil(Mathf.Tan (fovAngleRadians) * visionDistance));
+		// We will raycast several lines from the eye of the enemy to the different triangle points (hereby called <endPoint>)
+		for (int i = -widestFloor; i <= widestFloor; i++) {
 
-		for (int i = -maxVisionWidth; i <= maxVisionWidth; i++) {
-			Vector2 endPoint;
-
-			// Horizontal direction
-			if (direction.x != 0) {
-				endPoint = new Vector2 (visionDistance * direction.x, direction.y + i);
-			}
-
-			// Vertical direction
-			else {
-				endPoint = new Vector2 (direction.x + i, visionDistance * direction.y);
-			}
-				
-			float angle = Vector2.Angle (direction, endPoint);	
-
-			Vector3 rayRotation = Quaternion.AngleAxis (angle * Mathf.Sign (i), transform.forward) * direction;
+			Vector3 rayRotation = GetRayRotation (i, visionDistance);
 
 			boxCollider.enabled = false;
 			hits = Physics2D.RaycastAll (origin, rayRotation, visionDistance);
 			boxCollider.enabled = true;
-			Debug.DrawRay (origin, rayRotation * visionDistance, Color.white);
 
-
+			// Check if there is a blocking object in sight
 			if (BlockingObjectInVision (hits)) {
-				ResetLookRay (rayRotation);
+				// All floor tiles in the direction <rayRotation> will be reset to regular floor tiles
+				UpdateFloorsAfterBlockingObject (rayRotation);
 
+				// Now we'll mark the floor tiles as dangerous until the blocking object
 				float distanceToBlockingObject = Vector2.Distance (origin, blockingObjectPosition);
 
 				if (distanceToBlockingObject < 1) {
 					return;
 				}
 
-				// Mark every floor before blocking object as dangerous
 				hits = Physics2D.RaycastAll (origin, rayRotation, distanceToBlockingObject - 1);
 			}
 
