@@ -38,10 +38,10 @@ public class BoardManager : MonoBehaviour {
 		boardHolder = new GameObject("Board").transform;
 
 		// Setup floors and walls
-		for (int y = 0; y < boardHeight; y++) {
-			for (int x = 0; x < boardWidth; x++) {
+		for (int y = 0; y < boardHeight; y+=1) {
+			for (int x = 0; x < boardWidth; x+=1) {
 				GameObject toInstantiate = floor;
-				if (x == 0) {
+				/*if (x == 0) {
 					toInstantiate = (y == 0) ? bottomLeftWall : (y == boardHeight -1) ? topLeftWall : leftWall;
 				}
 				else if (x == boardWidth -1) {
@@ -53,17 +53,17 @@ public class BoardManager : MonoBehaviour {
 				else if (y == boardHeight - 1) {
 					toInstantiate = topWall;
 				}
-
+				*/
 				GameObject instance = Instantiate (toInstantiate, new Vector3 (x, y), Quaternion.identity) as GameObject;
 				instance.transform.SetParent (boardHolder);
 			}
 		}
 
 		// Setup other objects
-		for (int i = 0; i < objectsInfo.Length; i++) {
+		/*for (int i = 0; i < objectsInfo.Length; i++) {
 			GameObject instance = Instantiate (objectsInfo[i].boardObject, objectsInfo[i].objectPosition, Quaternion.identity) as GameObject;
 			instance.transform.SetParent (boardHolder);
-		}
+		}*/
 			
 	}
 }
