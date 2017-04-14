@@ -59,7 +59,16 @@ public class Enemy : MovingObject {
 			animator.SetTrigger ("moveDown");
 		}			
 	}
-		
+
+	// Returns the origin of the raycast to be performed
+	// The input parameters represent the raycast default origin if there wasn't an offset
+	// (There is an offset on the enemy's position for graphical reasons)
+	private Vector2 GetRaycastOriginTransform(Vector2 defaultOrigin)
+	{
+		Vector2 transformOffset = new Vector2 (transform.position.x % 1, transform.position.y % 1);
+		return new Vector2 (defaultOrigin.x - transformOffset.x, defaultOrigin.y - transformOffset.y);
+	}
+
 	protected override IEnumerator SmoothMovement(Vector3 end)
 	{
 		yield return StartCoroutine (base.SmoothMovement (end));
@@ -192,7 +201,7 @@ public class Enemy : MovingObject {
 	{
 		RaycastHit2D[] hits;
 
-		Vector2 origin = transform.position;
+		Vector2 origin = GetRaycastOriginTransform(transform.position);
 
 		hits = Physics2D.RaycastAll (origin, rayDirection, visionDistance);
 
@@ -245,7 +254,8 @@ public class Enemy : MovingObject {
 	{
 		RaycastHit2D[] hits;
 		// The origin of the raycasts will be in the previous position (before last moving)
-		Vector2 origin = new Vector2 (transform.position.x - direction.x, transform.position.y - direction.y);
+		Vector2 origin = GetRaycastOriginTransform(new Vector2 (transform.position.x - direction.x, transform.position.y - direction.y));
+
 		float distance = visionDistance +1f;
 
 		// The vision will be calculated like a triangle. 
@@ -276,7 +286,7 @@ public class Enemy : MovingObject {
 	private void ResetLook()
 	{
 		RaycastHit2D[] hits;
-		Vector2 origin = transform.position;
+		Vector2 origin = GetRaycastOriginTransform(transform.position);
 
 		// The vision will be calculated like a triangle. 
 		// From the vision distance and angle we can deduct the rest of the triangle variables
@@ -306,7 +316,7 @@ public class Enemy : MovingObject {
 	private void Look()
 	{		
 		RaycastHit2D[] hits;
-		Vector2 origin = transform.position;
+		Vector2 origin = GetRaycastOriginTransform(transform.position);
 
 		// Firstly, we will remove the floor tiles that the enemy no longer sees (because of his movement)
 		UpdateFloorsAfterLastMove();
@@ -322,6 +332,7 @@ public class Enemy : MovingObject {
 
 			boxCollider.enabled = false;
 			hits = Physics2D.RaycastAll (origin, rayRotation, visionDistance);
+			Debug.DrawRay (origin, rayRotation * visionDistance, Color.white);
 			boxCollider.enabled = true;
 
 			// Check if there is a blocking object in sight
