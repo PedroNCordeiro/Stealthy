@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : MovingObject {
 
 	private bool interactionKeyPressed = false;
+	private Animator animator;
 
 	private bool movementInputReady = true;
 	public float movementInputDelay;
@@ -33,6 +34,8 @@ public class Player : MovingObject {
 
 	protected override void Start ()
 	{
+		animator = GetComponent<Animator> ();
+
 		base.Start ();
 		GameController.singleton.AddPlayer (this);
 
@@ -43,7 +46,6 @@ public class Player : MovingObject {
 
 		invisibilityPotion.isActive = false;
 		invisibilityPotion.duration = potionOfInvisilibityDuration;
-
 	}
 
 	// Update is called once per frame
@@ -76,6 +78,32 @@ public class Player : MovingObject {
 		}
 	}
 		
+	private void ChangeSpriteDirection (int horizontal, int vertical)
+	{
+		if (horizontal == 1) {
+			animator.SetTrigger ("idleRight");
+		} else if (horizontal == -1) {
+			animator.SetTrigger ("idleLeft");
+		} else if (vertical == 1) {
+			animator.SetTrigger ("idleUp");
+		} else if (vertical == -1) {
+			animator.SetTrigger ("idleDown");
+		}			
+	}
+
+	private void StartSpriteMoveAnimation (int horizontal, int vertical)
+	{
+		if (horizontal == 1) {
+			animator.SetTrigger ("moveRight");
+		} else if (horizontal == -1) {
+			animator.SetTrigger ("moveLeft");
+		} else if (vertical == 1) {
+			animator.SetTrigger ("moveUp");
+		} else if (vertical == -1) {
+			animator.SetTrigger ("moveDown");
+		}			
+	}
+
 	// Reads all inputs related to player interactions
 	private IEnumerator CheckInteractionInputs()
 	{
@@ -118,7 +146,7 @@ public class Player : MovingObject {
 
 		yield return null;
 	}
-
+		
 	// Reads all player movement inputs
 	private IEnumerator CheckMovementInputs()
 	{
@@ -138,6 +166,7 @@ public class Player : MovingObject {
 				// The player only moves if he doesn't change his direction
 				if (ChangeInDirection (horizontal, vertical)) {
 					SaveDirection (horizontal, vertical);
+					ChangeSpriteDirection (horizontal, vertical);
 					yield return new WaitForSeconds (movementInputDelay);
 				} else {
 					MovePlayer ();
@@ -231,6 +260,9 @@ public class Player : MovingObject {
 		RaycastHit2D hit;
 
 		if (endedMove) {
+			
+			StartSpriteMoveAnimation (horizontal, vertical);
+
 			if (!Move (horizontal, vertical, out hit)) {
 
 				// Did we hit a blocking object?

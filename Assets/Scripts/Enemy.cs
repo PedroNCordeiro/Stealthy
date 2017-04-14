@@ -18,8 +18,6 @@ public class Enemy : MovingObject {
 
 		dangerousFloorPositions = new Dictionary<Vector2, List <Vector2>> ();
 		GameController.singleton.AddEnemyToList (this);
-
-		direction = new Vector2 (1, 0); // facing upwards
 	}
 		
 	void Update()
