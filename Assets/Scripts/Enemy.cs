@@ -5,6 +5,7 @@ using UnityEngine;
 public class Enemy : MovingObject {
 
 	private Vector2 blockingObjectPosition = Vector2.zero;
+	private Animator animator;
 
 	public int visionDistance;
 	public bool canMove;
@@ -14,6 +15,9 @@ public class Enemy : MovingObject {
 
 	// Use this for initialization
 	protected override void Start () {
+		animator = GetComponent<Animator> ();
+		ChangeSpriteDirection ((int)direction.x, (int)direction.y);
+
 		base.Start ();
 
 		dangerousFloorPositions = new Dictionary<Vector2, List <Vector2>> ();
@@ -30,6 +34,32 @@ public class Enemy : MovingObject {
 		ResetLook ();
 	}
 
+	private void ChangeSpriteDirection (int horizontal, int vertical)
+	{
+		if (horizontal == 1) {
+			animator.SetTrigger ("idleRight");
+		} else if (horizontal == -1) {
+			animator.SetTrigger ("idleLeft");
+		} else if (vertical == 1) {
+			animator.SetTrigger ("idleUp");
+		} else if (vertical == -1) {
+			animator.SetTrigger ("idleDown");
+		}			
+	}
+
+	private void StartSpriteMoveAnimation (int horizontal, int vertical)
+	{
+		if (horizontal == 1) {
+			animator.SetTrigger ("moveRight");
+		} else if (horizontal == -1) {
+			animator.SetTrigger ("moveLeft");
+		} else if (vertical == 1) {
+			animator.SetTrigger ("moveUp");
+		} else if (vertical == -1) {
+			animator.SetTrigger ("moveDown");
+		}			
+	}
+		
 	protected override IEnumerator SmoothMovement(Vector3 end)
 	{
 		yield return StartCoroutine (base.SmoothMovement (end));
@@ -364,12 +394,12 @@ public class Enemy : MovingObject {
 		// Before trying to move, the enemy will check if there is a hole in front of him
 		// If there is, he won't move there, and will change direction instead
 		Vector2 nextPosition = new Vector2(transform.position.x + direction.x, transform.position.y + direction.y);
-		if (FindHole(nextPosition, out hits)) {
+		if (FindHole (nextPosition, out hits)) {
 			ChangePatrolDirection ();
-		}
-
-		else if (!Move (horizontal, vertical, out hit)) {
+		} else if (!Move (horizontal, vertical, out hit)) {
 			ChangePatrolDirection ();
+		} else {
+			StartSpriteMoveAnimation (horizontal, vertical);
 		}
 	}
 

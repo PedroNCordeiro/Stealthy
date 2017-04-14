@@ -12,13 +12,12 @@ public class MovingObject : MonoBehaviour {
 	protected BoxCollider2D boxCollider;
 	protected int horizontal = 0;
 	protected int vertical = 0;
-	public Vector2 direction = new Vector2(1, 0); // Keeps the direction the moving object is facing; Starts looking right
+	public Vector2 direction; // Keeps the direction the moving object is facing
 
 	public float moveTime;
 	public LayerMask blockingLayer;
 	[HideInInspector]
 	public bool endedMove = true;
-
 
 
 	protected virtual void Start () {
