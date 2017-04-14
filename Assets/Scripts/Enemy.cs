@@ -332,7 +332,6 @@ public class Enemy : MovingObject {
 
 			boxCollider.enabled = false;
 			hits = Physics2D.RaycastAll (origin, rayRotation, visionDistance);
-			Debug.DrawRay (origin, rayRotation * visionDistance, Color.white);
 			boxCollider.enabled = true;
 
 			// Check if there is a blocking object in sight
