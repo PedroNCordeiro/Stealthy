@@ -67,9 +67,7 @@ public class Player : MovingObject {
 		}
 
 		else if (other.gameObject.tag == "Potion") {
-			Destroy (other.gameObject);
-			invisibilityPotion.isActive = true;
-			StartCoroutine (RemainInvisible (invisibilityPotion.duration));
+			BecomeInvisible (other);
 		}
 
 		else if (other.gameObject.tag == "Laser") {
@@ -300,14 +298,26 @@ public class Player : MovingObject {
 		return false;
 	}
 
+	private void BecomeInvisible(Collider2D other)
+	{
+		Destroy (other.gameObject);
+		invisibilityPotion.isActive = true;
+
+		StartCoroutine (RemainInvisible (invisibilityPotion.duration));
+	}
+
 	// Make the player invisible for a given duration
 	private IEnumerator RemainInvisible(float duration)
 	{
+		gameObject.GetComponent<SpriteRenderer> ().color = Color.black;
+
 		invisibilityPotion.timeLeft = duration;
 		while (invisibilityPotion.timeLeft > float.Epsilon) {
 			invisibilityPotion.timeLeft -= Time.deltaTime;
 			yield return null;
 		}
+
+		gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
 
 		invisibilityPotion.isActive = false;
 	}
