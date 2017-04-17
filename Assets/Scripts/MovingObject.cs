@@ -9,6 +9,7 @@ public class MovingObject : MonoBehaviour {
 	private IEnumerator SmoothMovementCoRoutine;
 	private IEnumerator SmoothMovementBackCoRoutine;
 
+	protected Animator animator;
 	protected BoxCollider2D boxCollider;
 	protected int horizontal = 0;
 	protected int vertical = 0;
@@ -58,6 +59,34 @@ public class MovingObject : MonoBehaviour {
 		Destroy (gameObject);
 	}
 
+	// This will be called on the Start() function
+	// To make the enemy look in the direction defined by the Vector2 <direction>
+	protected void ChangeSpriteDirection (int horizontal, int vertical)
+	{
+		if (horizontal == 1) {
+			animator.SetTrigger ("idleRight");
+		} else if (horizontal == -1) {
+			animator.SetTrigger ("idleLeft");
+		} else if (vertical == 1) {
+			animator.SetTrigger ("idleUp");
+		} else if (vertical == -1) {
+			animator.SetTrigger ("idleDown");
+		}			
+	}
+
+	protected void StartSpriteMoveAnimation (int horizontal, int vertical)
+	{
+		if (horizontal == 1) {
+			animator.SetTrigger ("moveRight");
+		} else if (horizontal == -1) {
+			animator.SetTrigger ("moveLeft");
+		} else if (vertical == 1) {
+			animator.SetTrigger ("moveUp");
+		} else if (vertical == -1) {
+			animator.SetTrigger ("moveDown");
+		}			
+	}
+		
 	private IEnumerator SmoothMovementBack(Vector3 backPosition)
 	{
 		float sqrRemainingDistance = (transform.position - backPosition).sqrMagnitude;
@@ -85,8 +114,8 @@ public class MovingObject : MonoBehaviour {
 		}
 		endedMove = true;
 	}
-
-	protected bool Move (int xDir, int yDir, out RaycastHit2D hit)
+		
+	protected virtual bool Move (int xDir, int yDir, out RaycastHit2D hit)
 	{
 		endedMove = false;
 		Vector2 start = transform.position;
@@ -100,11 +129,15 @@ public class MovingObject : MonoBehaviour {
 			SmoothMovementCoRoutine =  SmoothMovement (end);
 			SmoothMovementBackCoRoutine = SmoothMovementBack (start);
 			StartCoroutine (SmoothMovementCoRoutine);
+
+			StartSpriteMoveAnimation (xDir, yDir);
+
 			return true;
 		}
 		endedMove = true;
 		return false;
 	}
+
 
 	// Checks if the movement input given by <horizontal, vertical> differs from the previous input
 	// i.e. Checks if the object changed direction

@@ -5,7 +5,6 @@ using UnityEngine;
 public class Enemy : MovingObject {
 
 	private Vector2 blockingObjectPosition = Vector2.zero;
-	private Animator animator;
 
 	public int visionDistance;
 	public bool canMove;
@@ -34,34 +33,6 @@ public class Enemy : MovingObject {
 		ResetLook ();
 	}
 
-	// This will be called on the Start() function
-	// To make the enemy look in the direction defined by the Vector2 <direction>
-	private void ChangeSpriteDirection (int horizontal, int vertical)
-	{
-		if (horizontal == 1) {
-			animator.SetTrigger ("idleRight");
-		} else if (horizontal == -1) {
-			animator.SetTrigger ("idleLeft");
-		} else if (vertical == 1) {
-			animator.SetTrigger ("idleUp");
-		} else if (vertical == -1) {
-			animator.SetTrigger ("idleDown");
-		}			
-	}
-
-	private void StartSpriteMoveAnimation (int horizontal, int vertical)
-	{
-		if (horizontal == 1) {
-			animator.SetTrigger ("moveRight");
-		} else if (horizontal == -1) {
-			animator.SetTrigger ("moveLeft");
-		} else if (vertical == 1) {
-			animator.SetTrigger ("moveUp");
-		} else if (vertical == -1) {
-			animator.SetTrigger ("moveDown");
-		}			
-	}
-
 	// Returns the origin of the raycast to be performed
 	// The input parameters represent the raycast default origin if there wasn't an offset
 	// (There is an offset on the enemy's position for graphical reasons)
@@ -76,7 +47,7 @@ public class Enemy : MovingObject {
 		yield return StartCoroutine (base.SmoothMovement (end));
 		Look();
 	}
-
+		
 	// The enemy will follow a speficied path to return to his duty position
 	public IEnumerator MoveToDutyPosition(Vector2[] path)
 	{
@@ -410,8 +381,6 @@ public class Enemy : MovingObject {
 			ChangePatrolDirection ();
 		} else if (!Move (horizontal, vertical, out hit)) {
 			ChangePatrolDirection ();
-		} else {
-			StartSpriteMoveAnimation (horizontal, vertical);
 		}
 	}
 

@@ -5,7 +5,6 @@ using UnityEngine;
 public class Player : MovingObject {
 
 	private bool interactionKeyPressed = false;
-	private Animator animator;
 
 	private bool movementInputReady = true;
 	public float movementInputDelay;
@@ -74,32 +73,6 @@ public class Player : MovingObject {
 			Destroy (other.gameObject);
 			laser.charges = 1;
 		}
-	}
-		
-	private void ChangeSpriteDirection (int horizontal, int vertical)
-	{
-		if (horizontal == 1) {
-			animator.SetTrigger ("idleRight");
-		} else if (horizontal == -1) {
-			animator.SetTrigger ("idleLeft");
-		} else if (vertical == 1) {
-			animator.SetTrigger ("idleUp");
-		} else if (vertical == -1) {
-			animator.SetTrigger ("idleDown");
-		}			
-	}
-
-	private void StartSpriteMoveAnimation (int horizontal, int vertical)
-	{
-		if (horizontal == 1) {
-			animator.SetTrigger ("moveRight");
-		} else if (horizontal == -1) {
-			animator.SetTrigger ("moveLeft");
-		} else if (vertical == 1) {
-			animator.SetTrigger ("moveUp");
-		} else if (vertical == -1) {
-			animator.SetTrigger ("moveDown");
-		}			
 	}
 
 	// Reads all inputs related to player interactions
@@ -258,8 +231,6 @@ public class Player : MovingObject {
 		RaycastHit2D hit;
 
 		if (endedMove) {
-			
-			StartSpriteMoveAnimation (horizontal, vertical);
 
 			if (!Move (horizontal, vertical, out hit)) {
 
