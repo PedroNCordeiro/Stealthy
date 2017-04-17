@@ -267,7 +267,7 @@ public class Player : MovingObject {
 				if (hit.transform.gameObject.tag == "BlockingObject") {
 					Crate crate = hit.transform.GetComponent<Crate> () as Crate;
 					if (crate.endedMove) {
-						crate.Move (horizontal, vertical, out hit);
+						crate.Drag (horizontal, vertical, hit);
 					}
 				}
 			}

@@ -34,6 +34,8 @@ public class Enemy : MovingObject {
 		ResetLook ();
 	}
 
+	// This will be called on the Start() function
+	// To make the enemy look in the direction defined by the Vector2 <direction>
 	private void ChangeSpriteDirection (int horizontal, int vertical)
 	{
 		if (horizontal == 1) {

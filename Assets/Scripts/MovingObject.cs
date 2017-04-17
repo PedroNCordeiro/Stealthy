@@ -86,7 +86,7 @@ public class MovingObject : MonoBehaviour {
 		endedMove = true;
 	}
 
-	public bool Move (int xDir, int yDir, out RaycastHit2D hit)
+	protected bool Move (int xDir, int yDir, out RaycastHit2D hit)
 	{
 		endedMove = false;
 		Vector2 start = transform.position;

@@ -102,13 +102,15 @@ public class GameController : MonoBehaviour {
 	// Each Vector2 represents the direction the enemy needs to move each time
 	private Vector2[] PathToLightSwitch()
 	{
-		Vector2[] path = new Vector2[6];
-		path [0] = new Vector2 (0, 1);
+		Vector2[] path = new Vector2[8];
+		path [0] = new Vector2 (-1, 0);
 		path [1] = new Vector2 (-1, 0);
 		path [2] = new Vector2 (-1, 0);
 		path [3] = new Vector2 (-1, 0);
-		path [4] = new Vector2 (-1, 0);
-		path [5] = new Vector2 (-1, 0);  
+		path [4] = new Vector2 (-1, 0); 
+		path [5] = new Vector2 (0, -1);
+		path [6] = new Vector2 (0, -1);
+		path [7] = new Vector2 (0, -1);
 
 		return path;
 	}
@@ -117,14 +119,16 @@ public class GameController : MonoBehaviour {
 	// Each Vector2 represents the direction the enemy needs to move each time
 	private Vector2[] PathToDutyPosition()
 	{
-		Vector2[] path = new Vector2[6];
+		Vector2[] path = new Vector2[8];
 
-		path [0] = new Vector2 (1, 0);
-		path [1] = new Vector2 (1, 0);
-		path [2] = new Vector2 (1, 0);
+		path [0] = new Vector2 (0, 1);
+		path [1] = new Vector2 (0, 1);
+		path [2] = new Vector2 (0, 1);
 		path [3] = new Vector2 (1, 0);
 		path [4] = new Vector2 (1, 0);
-		path [5] = new Vector2 (0, -1);
+		path [5] = new Vector2 (1, 0);
+		path [6] = new Vector2 (1, 0);
+		path [7] = new Vector2 (1, 0);
 
 		return path;
 	}
