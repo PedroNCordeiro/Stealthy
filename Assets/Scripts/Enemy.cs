@@ -5,8 +5,9 @@ using UnityEngine;
 public class Enemy : MovingObject {
 
 	private Vector2 blockingObjectPosition = Vector2.zero;
+	private int visionDistance;
 
-	public int visionDistance;
+	public int maxVisionDistance;
 	public bool canMove;
 	public Dictionary <Vector2, List <Vector2>> dangerousFloorPositions;
 	public Vector2 lightSwitchPosition;
@@ -21,6 +22,8 @@ public class Enemy : MovingObject {
 
 		dangerousFloorPositions = new Dictionary<Vector2, List <Vector2>> ();
 		GameController.singleton.AddEnemyToList (this);
+
+		visionDistance = maxVisionDistance;
 	}
 		
 	void Update()
@@ -30,7 +33,7 @@ public class Enemy : MovingObject {
 
 	void OnDestroy()
 	{
-		ResetLook ();
+		ResetLook (visionDistance);
 	}
 
 	// Returns the origin of the raycast to be performed
@@ -48,6 +51,11 @@ public class Enemy : MovingObject {
 		Look();
 	}
 		
+	public void ChangeVisionDistance(int newVisionDistance)
+	{
+		visionDistance = newVisionDistance;
+	}
+
 	// The enemy will follow a speficied path to return to his duty position
 	public IEnumerator MoveToDutyPosition(Vector2[] path)
 	{
@@ -59,7 +67,7 @@ public class Enemy : MovingObject {
 				int pathY = (int)path [i].y;
 
 				if (ChangeInDirection (pathX, pathY)) {
-					ResetLook ();
+					ResetLook (visionDistance);
 					SaveDirection (pathX, pathY);
 				}
 				Move ((int)path [i].x, (int)path [i].y, out hit);
@@ -67,11 +75,16 @@ public class Enemy : MovingObject {
 			}
 			yield return null;
 		}
+		ChangeSpriteDirection ((int)direction.x, (int)direction.y);
 	}
 
 	// The enemy will follow a specified path to the LightSwitch
 	public IEnumerator MoveToLightSwitch(Vector2[] path)
 	{
+		// We need to call ResetLook with the vision radius before the lights went off
+		// Otherwise not all floor tiles will be updated
+		ResetLook (maxVisionDistance);
+
 		RaycastHit2D hit;
 		int i = 0;
 		while (i < path.Length) {
@@ -80,7 +93,7 @@ public class Enemy : MovingObject {
 				int pathY = (int)path [i].y;
 
 				if (ChangeInDirection(pathX, pathY)) {
-					ResetLook (); 
+					ResetLook (visionDistance); 
 					SaveDirection(pathX, pathY);
 				}
 				Move (pathX, pathY, out hit);
@@ -166,6 +179,7 @@ public class Enemy : MovingObject {
 				MarkFloorAsDangerous (hits [i], rayRotation);
 			}
 		}
+
 	}
 		
 	// All objects previously marked as Dangerous in the direction <rayDirection>
@@ -256,21 +270,22 @@ public class Enemy : MovingObject {
 
 	// All objects previously marked as Dangerous
 	// Will now be reset (their layer mask will become "Floor" again)
-	private void ResetLook()
+	// Within the distance given by <distance>
+	private void ResetLook(int distance)
 	{
 		RaycastHit2D[] hits;
 		Vector2 origin = GetRaycastOriginTransform(transform.position);
 
 		// The vision will be calculated like a triangle. 
 		// From the vision distance and angle we can deduct the rest of the triangle variables
-		int widestFloor = GetWidestFloor(fovAngle, visionDistance);
+		int widestFloor = GetWidestFloor(fovAngle, distance);
 
 		// We will raycast several lines from the eye of the enemy to the different triangle points (hereby called <endPoint>)
 		for (int i = -widestFloor; i <= widestFloor; i++) {
 
-			Vector3 rayRotation = GetRayRotation (i, visionDistance);
+			Vector3 rayRotation = GetRayRotation (i, distance);
 
-			hits = Physics2D.RaycastAll (origin, rayRotation, visionDistance);	
+			hits = Physics2D.RaycastAll (origin, rayRotation, distance);	
 
 			for (int j = 0; j < hits.Length; j++) {
 				if (hits [j].transform == null) {
@@ -345,7 +360,7 @@ public class Enemy : MovingObject {
 
 	private void ChangePatrolDirection()
 	{
-		ResetLook ();
+		ResetLook (visionDistance);
 
 		if (direction.x == 1) {
 			horizontal = 0;

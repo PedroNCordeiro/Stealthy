@@ -133,6 +133,16 @@ public class GameController : MonoBehaviour {
 		return path;
 	}
 
+	private void ChangeEnemiesVision(int newVisionDistance)
+	{
+		for (int i = 0; i < enemies.Count; i++) {
+			if (newVisionDistance == -1) {
+				newVisionDistance = enemies [i].maxVisionDistance;
+			}
+			enemies [i].ChangeVisionDistance (newVisionDistance);
+		}
+	}
+
 	// Activated if the player or an enemy pressed the light switch
 	// If the lights are turned off, we will find the closest enemy to the light switch
 	// And command it to go turn the lights on
@@ -143,7 +153,13 @@ public class GameController : MonoBehaviour {
 
 		lightSwitchInputReady = false;
 
-		mainLight.intensity = (mainLight.intensity == 1f) ? 0f : 1f;
+		if (mainLight.intensity == 1f) {
+			mainLight.intensity = 0f;
+			ChangeEnemiesVision (1);
+		} else {
+			mainLight.intensity = 1f;
+			ChangeEnemiesVision (-1); // Passing the value -1 means restoring each enemy's max vision distance
+		}
 
 		if (mainLight.intensity == 0f) {
 			Vector2[] pathToLightSwitch = PathToLightSwitch ();
