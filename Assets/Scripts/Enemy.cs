@@ -57,35 +57,9 @@ public class Enemy : MovingObject {
 		visionDistance = newVisionDistance;
 	}
 
-	// The enemy will follow a speficied path to return to his duty position
-	public IEnumerator MoveToDutyPosition(Vector2[] path)
+
+	private IEnumerator MoveToPosition(Vector2[] path)
 	{
-		RaycastHit2D hit;
-		int i = 0;
-		while (i < path.Length) {
-			if (endedMove) {
-				int pathX = (int)path [i].x;
-				int pathY = (int)path [i].y;
-
-				if (ChangeInDirection (pathX, pathY)) {
-					ResetLook (visionDistance);
-					SaveDirection (pathX, pathY);
-				}
-				Move ((int)path [i].x, (int)path [i].y, out hit);
-				i++;
-			}
-			yield return null;
-		}
-		ChangeSpriteDirection ((int)direction.x, (int)direction.y);
-	}
-
-	// The enemy will follow a specified path to the LightSwitch
-	public IEnumerator MoveToLightSwitch(Vector2[] path)
-	{
-		// We need to call ResetLook with the vision radius before the lights went off
-		// Otherwise not all floor tiles will be updated
-		ResetLook (maxVisionDistance);
-
 		RaycastHit2D hit;
 		int i = 0;
 		while (i < path.Length) {
@@ -102,12 +76,28 @@ public class Enemy : MovingObject {
 			}
 			yield return null;
 		}
+	}
+
+	// The enemy will follow a speficied path to return to his duty position
+	public IEnumerator MoveToDutyPosition(Vector2[] path)
+	{
+		yield return StartCoroutine (MoveToPosition (path));
+
+		ChangeSpriteDirection ((int)direction.x, (int)direction.y);
+	}
+
+	// The enemy will follow a specified path to the LightSwitch
+	public IEnumerator MoveToLightSwitch(Vector2[] path)
+	{
+		// We need to call ResetLook with the vision radius before the lights went off
+		// Otherwise not all floor tiles will be updated
+		ResetLook (maxVisionDistance);
+
+		yield return StartCoroutine (MoveToPosition (path));
 
 		yield return new WaitForSeconds(moveTime);
 
 		StartCoroutine(GameController.singleton.SwitchLights());
-
-		yield return null;
 	}
 
 
@@ -272,7 +262,7 @@ public class Enemy : MovingObject {
 	// All objects previously marked as Dangerous
 	// Will now be reset (their layer mask will become "Floor" again)
 	// Within the distance given by <distance>
-	private void ResetLook(int distance)
+	public void ResetLook(int distance)
 	{
 		RaycastHit2D[] hits;
 		Vector2 origin = GetRaycastOriginTransform(transform.position);

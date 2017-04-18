@@ -166,6 +166,7 @@ public class GameController : MonoBehaviour {
 			Vector2[] pathToDutyPosition = PathToDutyPosition ();
 
 			int enemyIndex = FindClosestEnemy (lightSwitchPosition);
+
 			StartCoroutine (enemies [enemyIndex].MoveToLightSwitch (pathToLightSwitch));
 			StartCoroutine (enemies [enemyIndex].MoveToDutyPosition (pathToDutyPosition));
 		}
