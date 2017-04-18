@@ -45,6 +45,8 @@ public class Player : MovingObject {
 
 		invisibilityPotion.isActive = false;
 		invisibilityPotion.duration = potionOfInvisilibityDuration;
+
+		ChangeSpriteDirection ((int)direction.x, (int)direction.y);
 	}
 
 	// Update is called once per frame

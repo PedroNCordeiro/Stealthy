@@ -16,7 +16,6 @@ public class Enemy : MovingObject {
 	// Use this for initialization
 	protected override void Start () {
 		animator = GetComponent<Animator> ();
-		ChangeSpriteDirection ((int)direction.x, (int)direction.y);
 
 		base.Start ();
 
@@ -24,6 +23,8 @@ public class Enemy : MovingObject {
 		GameController.singleton.AddEnemyToList (this);
 
 		visionDistance = maxVisionDistance;
+
+		ChangeSpriteDirection ((int)direction.x, (int)direction.y);
 	}
 		
 	void Update()
