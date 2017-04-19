@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/FourthLevelLightSwitch.unity
+- path: Assets/Scenes/FourthLevelLightSwitch.unity
   isLoaded: 1
   isActive: 1

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LevelSpecifications {
+public class LevelSpecifications : MonoBehaviour {
 
-
-
+	public Vector2[] pathToLightSwitch;
+	public Vector2[] pathToDutyPosition;
+		
 }

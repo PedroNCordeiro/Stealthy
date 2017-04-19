@@ -8,9 +8,9 @@ public class GameController : MonoBehaviour {
 	private Player player;
 	private List <Enemy> enemies;
 	private Light mainLight;
+	private LevelSpecifications levelSpecs;
 
 	public static GameController singleton;
-	public GameObject boardManager;
 	public bool lightSwitchInputReady = true;
 	public float lightSwitchInputDelay;
 
@@ -28,6 +28,10 @@ public class GameController : MonoBehaviour {
 		// Light switch references
 		GameObject mainLightObject = GameObject.FindGameObjectWithTag ("MainLight");
 		mainLight = mainLightObject.GetComponent<Light>() as Light;
+
+		// Level Specifications
+		GameObject levelSpecsObject = GameObject.FindGameObjectWithTag("LevelSpecifications");
+		levelSpecs = levelSpecsObject.GetComponent<LevelSpecifications> () as LevelSpecifications;
 	}
 
 	void Update()
@@ -97,42 +101,7 @@ public class GameController : MonoBehaviour {
 	
 		return idx;
 	}
-
-	// The path to the lightswitch
-	// Each Vector2 represents the direction the enemy needs to move each time
-	private Vector2[] PathToLightSwitch()
-	{
-		Vector2[] path = new Vector2[8];
-		path [0] = new Vector2 (-1, 0);
-		path [1] = new Vector2 (-1, 0);
-		path [2] = new Vector2 (-1, 0);
-		path [3] = new Vector2 (-1, 0);
-		path [4] = new Vector2 (-1, 0); 
-		path [5] = new Vector2 (0, -1);
-		path [6] = new Vector2 (0, -1);
-		path [7] = new Vector2 (0, -1);
-
-		return path;
-	}
-
-	// The path to the lightswitch
-	// Each Vector2 represents the direction the enemy needs to move each time
-	private Vector2[] PathToDutyPosition()
-	{
-		Vector2[] path = new Vector2[8];
-
-		path [0] = new Vector2 (0, 1);
-		path [1] = new Vector2 (0, 1);
-		path [2] = new Vector2 (0, 1);
-		path [3] = new Vector2 (1, 0);
-		path [4] = new Vector2 (1, 0);
-		path [5] = new Vector2 (1, 0);
-		path [6] = new Vector2 (1, 0);
-		path [7] = new Vector2 (1, 0);
-
-		return path;
-	}
-
+		
 	private void ChangeEnemiesVision(int newVisionDistance)
 	{
 		for (int i = 0; i < enemies.Count; i++) {
@@ -162,13 +131,10 @@ public class GameController : MonoBehaviour {
 		}
 
 		if (mainLight.intensity == 0f) {
-			Vector2[] pathToLightSwitch = PathToLightSwitch ();
-			Vector2[] pathToDutyPosition = PathToDutyPosition ();
-
 			int enemyIndex = FindClosestEnemy (lightSwitchPosition);
 
-			StartCoroutine (enemies [enemyIndex].MoveToLightSwitch (pathToLightSwitch));
-			StartCoroutine (enemies [enemyIndex].MoveToDutyPosition (pathToDutyPosition));
+			yield return StartCoroutine (enemies [enemyIndex].MoveToLightSwitch (levelSpecs.pathToLightSwitch));
+			yield return StartCoroutine (enemies [enemyIndex].MoveToDutyPosition (levelSpecs.pathToDutyPosition));
 		}
 
 		yield return new WaitForSeconds (lightSwitchInputDelay);
