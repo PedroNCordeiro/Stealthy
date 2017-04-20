@@ -243,6 +243,8 @@ public class Player : MovingObject {
 						crate.Drag (horizontal, vertical, hit);
 					}
 				}
+			} else {
+				StartSpriteMoveAnimation (horizontal, vertical);
 			}
 		}
 	}

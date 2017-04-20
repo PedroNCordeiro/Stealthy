@@ -31,7 +31,9 @@ public class GameController : MonoBehaviour {
 
 		// Level Specifications
 		GameObject levelSpecsObject = GameObject.FindGameObjectWithTag("LevelSpecifications");
-		levelSpecs = levelSpecsObject.GetComponent<LevelSpecifications> () as LevelSpecifications;
+		if (levelSpecsObject != null) {
+			levelSpecs = levelSpecsObject.GetComponent<LevelSpecifications> () as LevelSpecifications;
+		}
 	}
 
 	void Update()

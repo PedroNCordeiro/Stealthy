@@ -130,8 +130,6 @@ public class MovingObject : MonoBehaviour {
 			SmoothMovementBackCoRoutine = SmoothMovementBack (start);
 			StartCoroutine (SmoothMovementCoRoutine);
 
-			StartSpriteMoveAnimation (xDir, yDir);
-
 			return true;
 		}
 		endedMove = true;

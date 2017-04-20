@@ -80,6 +80,7 @@ public class Enemy : MovingObject {
 					SaveDirection(pathX, pathY);
 				}
 				Move (pathX, pathY, out hit);
+				StartSpriteMoveAnimation (pathX, pathY);
 				i++;
 			}
 			yield return null;
@@ -395,6 +396,8 @@ public class Enemy : MovingObject {
 			ChangePatrolDirection ();
 		} else if (!Move (horizontal, vertical, out hit)) {
 			ChangePatrolDirection ();
+		} else {
+			StartSpriteMoveAnimation (horizontal, vertical);
 		}
 	}
 
