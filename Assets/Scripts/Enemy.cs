@@ -8,7 +8,11 @@ public class Enemy : MovingObject {
 	private int visionDistance;
 
 	public int maxVisionDistance;
+
 	public bool canMove;
+	public bool hasPatrolPath; // Defines if an enemy has a specific patrol path
+	public Vector2[] patrolPath;
+
 	public Dictionary <Vector2, List <Vector2>> dangerousFloorPositions;
 	public Vector2 lightSwitchPosition;
 	public float fovAngle;
@@ -24,7 +28,11 @@ public class Enemy : MovingObject {
 
 		visionDistance = maxVisionDistance;
 
-		ChangeSpriteDirection ((int)direction.x, (int)direction.y);
+		if (!canMove) {
+			ChangeSpriteDirection ((int)direction.x, (int)direction.y);
+		} else {
+			StartSpriteMoveAnimation ((int)direction.x, (int)direction.y);
+		}
 	}
 		
 	void Update()
@@ -372,7 +380,7 @@ public class Enemy : MovingObject {
 		Look();
 	}
 
-	public void Patrol()
+	private void GenericPatrol()
 	{
 		RaycastHit2D hit;
 		RaycastHit2D[] hits;
@@ -382,11 +390,23 @@ public class Enemy : MovingObject {
 
 		// Before trying to move, the enemy will check if there is a hole in front of him
 		// If there is, he won't move there, and will change direction instead
-		Vector2 nextPosition = new Vector2(transform.position.x + direction.x, transform.position.y + direction.y);
+		Vector2 nextPosition = new Vector2 (transform.position.x + direction.x, transform.position.y + direction.y);
 		if (FindHole (nextPosition, out hits)) {
 			ChangePatrolDirection ();
 		} else if (!Move (horizontal, vertical, out hit)) {
 			ChangePatrolDirection ();
+		}
+	}
+
+	public void Patrol()
+	{
+		// Checking if the enemy has a specific patrol path
+		// If not, he will walk in circles (generic patrol)
+		if (hasPatrolPath) {
+			StartCoroutine (MoveToPosition (patrolPath));
+		}
+		else {			
+			GenericPatrol ();
 		}
 	}
 
