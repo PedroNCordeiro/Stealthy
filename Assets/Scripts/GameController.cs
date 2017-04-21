@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour {
 	private List <Enemy> enemies;
 	private Light mainLight;
 	private LevelSpecifications levelSpecs;
+	private int level = 0;
 
 	public static GameController singleton;
 	public bool lightSwitchInputReady = true;
@@ -23,22 +24,23 @@ public class GameController : MonoBehaviour {
 
 		DontDestroyOnLoad (gameObject);
 
+		FirstSetup ();
+	}
+
+	void Update()
+	{
+		MoveEnemies ();
+	}
+
+	private void FirstSetup()
+	{
 		enemies = new List<Enemy> ();
 
 		// Light switch references
 		GameObject mainLightObject = GameObject.FindGameObjectWithTag ("MainLight");
 		mainLight = mainLightObject.GetComponent<Light>() as Light;
 
-		// Level Specifications
-		GameObject levelSpecsObject = GameObject.FindGameObjectWithTag("LevelSpecifications");
-		if (levelSpecsObject != null) {
-			levelSpecs = levelSpecsObject.GetComponent<LevelSpecifications> () as LevelSpecifications;
-		}
-	}
-
-	void Update()
-	{
-		MoveEnemies ();
+		SetupLevel ();
 	}
 
 	public void AddEnemyToList(Enemy script)
@@ -144,10 +146,29 @@ public class GameController : MonoBehaviour {
 		lightSwitchInputReady = true;
 	}
 		
+	private IEnumerator SetupLevel()
+	{
+		yield return null;
+
+		// Restore light, in case we left a dark room in the previous level
+		mainLight.intensity = 1f;
+
+		// Level Specifications
+		GameObject levelSpecsObject = GameObject.FindGameObjectWithTag("LevelSpecifications");
+		if (levelSpecsObject != null) {
+			levelSpecs = levelSpecsObject.GetComponent<LevelSpecifications> () as LevelSpecifications;
+		}
+	}
+
 	// Advances the game for the next level
 	public void NextLevel()
-	{
-		SceneManager.LoadScene (1);
+	{	
+		enemies.Clear ();
+
+		level++;
+		SceneManager.LoadScene (level);
+
+		StartCoroutine (SetupLevel ());
 	}
 
 	public void GameOver()
