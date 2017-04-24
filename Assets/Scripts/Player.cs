@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : MovingObject {
 
 	private bool interactionKeyPressed = false;
+	private Vector2 startingPosition;
 
 	private bool movementInputReady = true;
 	public float movementInputDelay;
@@ -37,6 +38,7 @@ public class Player : MovingObject {
 
 		base.Start ();
 		GameController.singleton.AddPlayer (this);
+		startingPosition = this.transform.position;
 
 		laser.keyPressed = false;
 		laser.charges = 0;
@@ -307,6 +309,9 @@ public class Player : MovingObject {
 
 	public void Die()
 	{
+		animator.StopPlayback ();
+		endedMove = true;
+		Instantiate (gameObject, startingPosition, Quaternion.identity);
 		Destroy (gameObject);
 	}
 }
