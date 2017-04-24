@@ -32,8 +32,9 @@ public class GameController : MonoBehaviour {
 		
 	void Update()
 	{
-		if (Input.GetKey("escape"))
-			Application.Quit();
+		if (Input.GetKeyDown (KeyCode.Escape)) {
+			Application.Quit ();
+		}
 		
 		if (!onTutorial) {
 			MoveEnemies ();
@@ -179,6 +180,12 @@ public class GameController : MonoBehaviour {
 		// to make sure we have destroyed everything in the previous scene and loaded everything on the new scene
 		yield return null;
 
+		// Level Specifications
+		GameObject levelSpecsObject = GameObject.FindGameObjectWithTag("LevelSpecifications");
+		if (levelSpecsObject != null) {
+			levelSpecs = levelSpecsObject.GetComponent<LevelSpecifications> () as LevelSpecifications;
+		}
+
 		// Displaying level tutorial
 		levelTutorialCanvas = GameObject.Find ("LevelMessageCanvas");
 		if (levelTutorialCanvas != null) {
@@ -187,12 +194,6 @@ public class GameController : MonoBehaviour {
 
 		// Restore light, in case we left a dark room in the previous level
 		mainLight.intensity = 1f;
-
-		// Level Specifications
-		GameObject levelSpecsObject = GameObject.FindGameObjectWithTag("LevelSpecifications");
-		if (levelSpecsObject != null) {
-			levelSpecs = levelSpecsObject.GetComponent<LevelSpecifications> () as LevelSpecifications;
-		}
 	}
 
 	// Advances the game to the next level
