@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: e3e2862b4ced844f181f6d5754f86122
+timeCreated: 1493030134
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: College Semi-condensed
+  fontNames:
+  - College Semi-condensed
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
