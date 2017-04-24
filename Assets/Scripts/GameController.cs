@@ -32,6 +32,9 @@ public class GameController : MonoBehaviour {
 		
 	void Update()
 	{
+		if (Input.GetKey("escape"))
+			Application.Quit();
+		
 		if (!onTutorial) {
 			MoveEnemies ();
 		}
@@ -169,9 +172,11 @@ public class GameController : MonoBehaviour {
 
 		yield return null;
 	}
-
+		
 	private IEnumerator SetupLevel()
 	{
+		// Since SetupLevel() is called at the end of the previous scene, we advance to the next frame
+		// to make sure we have destroyed everything in the previous scene and loaded everything on the new scene
 		yield return null;
 
 		// Displaying level tutorial
