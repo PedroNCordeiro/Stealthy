@@ -10,7 +10,10 @@ public class GameController : MonoBehaviour {
 	private Light mainLight;
 	private LevelSpecifications levelSpecs;
 	private int level = 0;
+	private GameObject levelTutorialCanvas;
 
+	[HideInInspector]
+	public bool onTutorial = false;
 	public static GameController singleton;
 	public bool lightSwitchInputReady = true;
 	public float lightSwitchInputDelay;
@@ -26,10 +29,12 @@ public class GameController : MonoBehaviour {
 
 		FirstSetup ();
 	}
-
+		
 	void Update()
 	{
-		MoveEnemies ();
+		if (!onTutorial) {
+			MoveEnemies ();
+		}
 	}
 
 	private void FirstSetup()
@@ -145,10 +150,33 @@ public class GameController : MonoBehaviour {
 
 		lightSwitchInputReady = true;
 	}
-		
-	private IEnumerator SetupLevel()
+
+	// Display the level tutorial
+	private IEnumerator SetupTutorial()
 	{
+		onTutorial = true;
+
+		while (true) {
+			if (Input.GetKeyUp (KeyCode.Space)) {
+				break;
+			}
+			yield return null;
+		}
+			
+		levelTutorialCanvas.SetActive (false);
+
+		onTutorial = false;
+
 		yield return null;
+	}
+
+	private void SetupLevel()
+	{
+		// Displaying level tutorial
+		levelTutorialCanvas = GameObject.Find ("LevelMessageCanvas");
+		if (levelTutorialCanvas != null) {
+			StartCoroutine (SetupTutorial ());
+		}
 
 		// Restore light, in case we left a dark room in the previous level
 		mainLight.intensity = 1f;
@@ -160,15 +188,15 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	// Advances the game for the next level
-	public void NextLevel()
+	// Advances the game to the next level
+	public void FinishLevel()
 	{	
 		enemies.Clear ();
 
 		level++;
 		SceneManager.LoadScene (level);
 
-		StartCoroutine (SetupLevel ());
+		SetupLevel ();
 	}
 
 	public void GameOver()

@@ -51,7 +51,9 @@ public class Player : MovingObject {
 
 	// Update is called once per frame
 	void Update () {
-		CheckInputs ();
+		if (!GameController.singleton.onTutorial) {
+			CheckInputs ();
+		}
 	}
 
 	protected override void OnTriggerEnter2D(Collider2D other)
@@ -64,7 +66,7 @@ public class Player : MovingObject {
 		}
 
 		else if (other.gameObject.tag == "Finish") {
-			GameController.singleton.NextLevel ();
+			GameController.singleton.FinishLevel ();
 		}
 
 		else if (other.gameObject.tag == "Potion") {
