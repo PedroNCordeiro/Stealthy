@@ -45,7 +45,7 @@ public class GameController : MonoBehaviour {
 		GameObject mainLightObject = GameObject.FindGameObjectWithTag ("MainLight");
 		mainLight = mainLightObject.GetComponent<Light>() as Light;
 
-		SetupLevel ();
+		StartCoroutine (SetupLevel ());
 	}
 
 	public void AddEnemyToList(Enemy script)
@@ -170,8 +170,10 @@ public class GameController : MonoBehaviour {
 		yield return null;
 	}
 
-	private void SetupLevel()
+	private IEnumerator SetupLevel()
 	{
+		yield return null;
+
 		// Displaying level tutorial
 		levelTutorialCanvas = GameObject.Find ("LevelMessageCanvas");
 		if (levelTutorialCanvas != null) {
@@ -196,7 +198,7 @@ public class GameController : MonoBehaviour {
 		level++;
 		SceneManager.LoadScene (level);
 
-		SetupLevel ();
+		StartCoroutine (SetupLevel ());
 	}
 
 	public void GameOver()
