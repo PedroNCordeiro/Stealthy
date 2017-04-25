@@ -6,4 +6,5 @@ public class LevelSpecifications : MonoBehaviour {
 
 	public Vector2[] pathToLightSwitch;
 	public Vector2[] pathToDutyPosition;
+	public bool showTutorial;
 }

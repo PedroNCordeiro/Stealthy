@@ -9,8 +9,9 @@ public class GameController : MonoBehaviour {
 	private List <Enemy> enemies;
 	private Light mainLight;
 	private LevelSpecifications levelSpecs;
-	private int level = 0;
+	private int level;
 	private GameObject levelTutorialCanvas;
+	private static bool firstTime = true;
 
 	[HideInInspector]
 	public bool onTutorial = false;
@@ -166,7 +167,7 @@ public class GameController : MonoBehaviour {
 			}
 			yield return null;
 		}
-			
+
 		levelTutorialCanvas.SetActive (false);
 
 		onTutorial = false;
@@ -176,8 +177,6 @@ public class GameController : MonoBehaviour {
 		
 	private IEnumerator SetupLevel()
 	{
-		// Since SetupLevel() is called at the end of the previous scene, we advance to the next frame
-		// to make sure we have destroyed everything in the previous scene and loaded everything on the new scene
 		yield return null;
 
 		// Level Specifications
@@ -186,10 +185,13 @@ public class GameController : MonoBehaviour {
 			levelSpecs = levelSpecsObject.GetComponent<LevelSpecifications> () as LevelSpecifications;
 		}
 
-		// Displaying level tutorial
 		levelTutorialCanvas = GameObject.Find ("LevelMessageCanvas");
 		if (levelTutorialCanvas != null) {
-			StartCoroutine (SetupTutorial ());
+			if (levelSpecs.showTutorial && firstTime) {
+				StartCoroutine (SetupTutorial ());
+			} else {
+				levelTutorialCanvas.SetActive (false);
+			}
 		}
 
 		// Restore light, in case we left a dark room in the previous level
@@ -199,16 +201,24 @@ public class GameController : MonoBehaviour {
 	// Advances the game to the next level
 	public void FinishLevel()
 	{	
+		firstTime = true;
+		
 		enemies.Clear ();
 
-		level++;
+		level = SceneManager.GetActiveScene().buildIndex + 1;
 		SceneManager.LoadScene (level);
 
 		StartCoroutine (SetupLevel ());
 	}
-
+		
 	public void GameOver()
 	{
-		player.Die ();
+		firstTime = false;
+
+		enemies.Clear ();
+
+		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+		StartCoroutine (SetupLevel ());
 	}
 }

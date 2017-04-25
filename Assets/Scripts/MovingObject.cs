@@ -54,7 +54,7 @@ public class MovingObject : MonoBehaviour {
 		floor.DestructFloor ();
 	}
 
-	private void Fall()
+	protected virtual void Fall()
 	{
 		Destroy (gameObject);
 	}
