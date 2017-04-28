@@ -6,6 +6,7 @@ public class Player : MovingObject {
 
 	private bool interactionKeyPressed = false;
 
+	private int lastKeyDirection = 0;
 	private bool movementInputReady = true;
 	public float movementInputDelay;
 
@@ -122,17 +123,56 @@ public class Player : MovingObject {
 		yield return null;
 	}
 		
+	// Reads all the player movement inputs
+	private void GetMovementInputs (out int xDir, out int yDir)
+	{
+		xDir = (int)Input.GetAxisRaw ("Horizontal");
+		yDir = (int)Input.GetAxisRaw ("Vertical");
+
+		if (Input.GetKeyUp (KeyCode.LeftArrow) || Input.GetKeyUp (KeyCode.RightArrow)) {
+			xDir = 0;
+			lastKeyDirection = 0;
+		}
+
+		if (Input.GetKeyUp (KeyCode.UpArrow) || Input.GetKeyUp (KeyCode.DownArrow)) {
+			yDir = 0;
+			lastKeyDirection = 0;
+		}
+
+
+		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
+			xDir = -1;
+			yDir = 0;
+			lastKeyDirection = -1;
+		} else if (Input.GetKeyDown (KeyCode.RightArrow)) {
+			xDir = 1;
+			yDir = 0;
+			lastKeyDirection = -1;
+		}
+		if (Input.GetKeyDown (KeyCode.UpArrow)) {
+			yDir = 1;
+			xDir = 0;
+			lastKeyDirection = 1;
+		} else if (Input.GetKeyDown (KeyCode.DownArrow)) {
+			yDir = -1;
+			xDir = 0;
+			lastKeyDirection = 1;
+		}
+
+		if (lastKeyDirection == -1) { // horizontal was last pressed
+			yDir = 0;
+		} else if (lastKeyDirection == 1) { // vertical was last pressed
+			xDir = 0;
+		}
+
+	}
+
 	// Reads all player movement inputs
 	private IEnumerator CheckMovementInputs()
 	{
 		if (movementInputReady) {
 
-			horizontal = (int)Input.GetAxisRaw ("Horizontal");
-			vertical = (int)Input.GetAxisRaw ("Vertical");
-
-			if (horizontal != 0) {
-				vertical = 0;
-			}
+			GetMovementInputs (out horizontal, out vertical);
 
 			if (horizontal != 0 || vertical != 0) {
 
