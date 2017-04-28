@@ -14,7 +14,6 @@ public class Enemy : MovingObject {
 	public Vector2[] patrolPath;
 
 	public Dictionary <Vector2, List <Vector2>> dangerousFloorPositions;
-	public Vector2 lightSwitchPosition;
 	public float fovAngle;
 
 	// Use this for initialization
