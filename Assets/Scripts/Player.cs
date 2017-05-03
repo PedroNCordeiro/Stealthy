@@ -77,6 +77,7 @@ public class Player : MovingObject {
 		else if (other.gameObject.tag == "Laser") {
 			Destroy (other.gameObject);
 			laser.charges = 1;
+			GameController.singleton.ShowLaserSlotImage (true);
 		}
 	}
 
@@ -267,6 +268,9 @@ public class Player : MovingObject {
 				floor.DamageFloorByLaser ();
 			}
 			laser.charges--;
+			if (laser.charges == 0) {
+				GameController.singleton.ShowLaserSlotImage (false);
+			}
 		}
 	}
 

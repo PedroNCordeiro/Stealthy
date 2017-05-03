@@ -12,6 +12,7 @@ public class GameController : MonoBehaviour {
 	private int level;
 	private GameObject levelTutorialCanvas;
 	private static bool firstTimeInLevel = true;
+	private GameObject laserSlotImage;
 
 	[HideInInspector]
 	public bool onTutorial = false;
@@ -48,7 +49,13 @@ public class GameController : MonoBehaviour {
 
 		// Light switch references
 		GameObject mainLightObject = GameObject.FindGameObjectWithTag ("MainLight");
-		mainLight = mainLightObject.GetComponent<Light>() as Light;
+		if (mainLightObject != null) {
+			mainLight = mainLightObject.GetComponent<Light>() as Light;
+		}
+
+		// Item Slots references
+		laserSlotImage = GameObject.Find("LaserSlotImage");
+		laserSlotImage.SetActive (false);
 
 		StartCoroutine (SetupLevel ());
 	}
@@ -66,6 +73,12 @@ public class GameController : MonoBehaviour {
 	public void AddPlayer(Player script)
 	{
 		this.player = script;
+	}
+		
+	// Show / Hide the laser slot image
+	public void ShowLaserSlotImage(bool show)
+	{
+		laserSlotImage.SetActive (show);
 	}
 
 	public bool IsPlayerInvisible()
