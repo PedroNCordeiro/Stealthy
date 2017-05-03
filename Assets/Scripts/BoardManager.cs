@@ -27,7 +27,6 @@ public class BoardManager : MonoBehaviour {
 	public boardObjectInfo[] objectsInfo;
 
 
-
 	void Awake()
 	{
 		SetupBoard ();

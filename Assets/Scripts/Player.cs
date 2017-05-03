@@ -139,7 +139,6 @@ public class Player : MovingObject {
 			lastKeyDirection = 0;
 		}
 
-
 		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
 			xDir = -1;
 			yDir = 0;
@@ -159,6 +158,9 @@ public class Player : MovingObject {
 			lastKeyDirection = 1;
 		}
 
+
+		// This is to make sure that the player moves in the direction of the last key pressed and not diagonally
+		// When we have 2 directional keys pressed down
 		if (lastKeyDirection == -1) { // horizontal was last pressed
 			yDir = 0;
 		} else if (lastKeyDirection == 1) { // vertical was last pressed

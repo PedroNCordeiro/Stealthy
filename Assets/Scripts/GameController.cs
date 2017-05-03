@@ -11,7 +11,7 @@ public class GameController : MonoBehaviour {
 	private LevelSpecifications levelSpecs;
 	private int level;
 	private GameObject levelTutorialCanvas;
-	private static bool firstTime = true;
+	private static bool firstTimeInLevel = true;
 
 	[HideInInspector]
 	public bool onTutorial = false;
@@ -187,7 +187,7 @@ public class GameController : MonoBehaviour {
 
 		levelTutorialCanvas = GameObject.Find ("LevelMessageCanvas");
 		if (levelTutorialCanvas != null) {
-			if (levelSpecs.showTutorial && firstTime) {
+			if (levelSpecs.showTutorial && firstTimeInLevel) {
 				StartCoroutine (SetupTutorial ());
 			} else {
 				levelTutorialCanvas.SetActive (false);
@@ -201,7 +201,7 @@ public class GameController : MonoBehaviour {
 	// Advances the game to the next level
 	public void FinishLevel()
 	{	
-		firstTime = true;
+		firstTimeInLevel = true;
 		
 		enemies.Clear ();
 
@@ -213,7 +213,7 @@ public class GameController : MonoBehaviour {
 		
 	public void GameOver()
 	{
-		firstTime = false;
+		firstTimeInLevel = false;
 
 		enemies.Clear ();
 
