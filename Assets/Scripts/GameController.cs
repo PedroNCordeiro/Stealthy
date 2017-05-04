@@ -81,13 +81,18 @@ public class GameController : MonoBehaviour {
 	{
 		this.player = script;
 	}
-		
+
 	// Show / Hide the laser slot image
 	public void ShowLaserSlotImage(bool show)
 	{
 		if (laserSlotImage != null) {
 			laserSlotImage.SetActive (show);
 		}
+	}
+		
+	public void OnLaserSlotClick()
+	{
+		player.clickedOnLaserSlot = true;
 	}
 
 	// Show / Hide the potion slot image

@@ -20,6 +20,7 @@ public class Player : MovingObject {
 
 	private Item laser;
 	public float laserInputDelay;
+	public bool clickedOnLaserSlot;
 
 
 	public struct Consumable {
@@ -103,12 +104,24 @@ public class Player : MovingObject {
 		yield return null;
 	}
 
+	// Reads all the item inputs if we're in editor, webplayer or standalone
+	private void GetItemInputs ()
+	{
+		laser.keyPressed = Input.GetKeyDown (KeyCode.Z);
+	}
+
+	// Reads all the item inputs if we're on a mobile build
+	private void GetItemInputsMobile()
+	{
+		laser.keyPressed = clickedOnLaserSlot;
+	}
+
 	// Reads all inputs related to player items
 	private IEnumerator CheckItemInputs()
 	{
 		if (laser.inputReady) {
 
-			laser.keyPressed = Input.GetKeyDown (KeyCode.Z);
+			GetItemInputsMobile ();
 			if (laser.keyPressed && laser.charges > 0) {
 
 				laser.inputReady = false;
@@ -120,6 +133,9 @@ public class Player : MovingObject {
 				laser.inputReady = true;
 			}
 		}
+
+		// Every frame we reset the variable. We only want to read the click when it happens in this very frame
+		clickedOnLaserSlot = false;
 
 		yield return null;
 	}
@@ -204,7 +220,7 @@ public class Player : MovingObject {
 	{
 		if (movementInputReady) {
 
-			#if UNITY_STANDALONE || UNITY_WEBPLAYER// || UNITY_EDITOR
+			#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
 				GetMovementInputs (out horizontal, out vertical);
 			#else
 				GetMovementInputsMobile (out horizontal, out vertical);
