@@ -124,7 +124,7 @@ public class Player : MovingObject {
 		yield return null;
 	}
 		
-	// Reads all the player movement inputs
+	// Reads all the player movement inputs if we're in editor, webplayer or standalone
 	private void GetMovementInputs (out int xDir, out int yDir)
 	{
 		xDir = (int)Input.GetAxisRaw ("Horizontal");
@@ -170,12 +170,45 @@ public class Player : MovingObject {
 
 	}
 
+	// Reads all the player movement inputs if we're on a mobile build
+	private void GetMovementInputsMobile (out int xDir, out int yDir)
+	{
+		if (Input.touchCount > 0) {
+			Touch myTouch = Input.touches [0];
+
+			Vector3 touchV3 = myTouch.position;
+			touchV3 = Camera.main.ScreenToWorldPoint (touchV3);
+
+			Vector3 maxCameraCoords = new Vector3 (Camera.main.pixelWidth, Camera.main.pixelHeight, 0.0f);
+			maxCameraCoords = Camera.main.ScreenToWorldPoint (maxCameraCoords);
+
+			float xOffset = touchV3.x - Camera.main.gameObject.transform.position.x;
+			float yOffset = touchV3.y - Camera.main.gameObject.transform.position.y;
+
+			if (Mathf.Abs (xOffset) >= Mathf.Abs (yOffset)) {
+				xDir = xOffset >= 0 ? 1 : -1;
+				yDir = 0;
+			} else {
+				yDir = yOffset > 0 ? 1 : -1;
+				xDir = 0;
+			}
+		}
+		else {
+			xDir = 0;
+			yDir = 0;
+		}
+	}
+
 	// Reads all player movement inputs
 	private IEnumerator CheckMovementInputs()
 	{
 		if (movementInputReady) {
 
-			GetMovementInputs (out horizontal, out vertical);
+			#if UNITY_STANDALONE || UNITY_WEBPLAYER// || UNITY_EDITOR
+				GetMovementInputs (out horizontal, out vertical);
+			#else
+				GetMovementInputsMobile (out horizontal, out vertical);
+			#endif
 
 			if (horizontal != 0 || vertical != 0) {
 
