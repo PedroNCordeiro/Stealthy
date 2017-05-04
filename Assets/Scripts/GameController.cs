@@ -13,10 +13,12 @@ public class GameController : MonoBehaviour {
 	private GameObject levelTutorialCanvas;
 	private static bool firstTimeInLevel = true;
 
+	// UI references
 	private GameObject itemSlots;
 	private GameObject laserSlotImage;
 	private GameObject switchSlotImage;
 	private GameObject slotKeys;
+	private GameObject UIArrows;
 
 	[HideInInspector]
 	public bool onTutorial = false;
@@ -57,7 +59,7 @@ public class GameController : MonoBehaviour {
 			mainLight = mainLightObject.GetComponent<Light>() as Light;
 		}
 
-		// Item Slots references
+		// UI references
 		itemSlots = GameObject.Find("ItemSlots");
 		if (itemSlots != null) {
 			// Mobile devices
@@ -81,7 +83,14 @@ public class GameController : MonoBehaviour {
 		if (switchSlotImage != null) {
 			switchSlotImage.SetActive (false);
 		}
-			
+
+		UIArrows = GameObject.Find ("Arrows");
+		if (UIArrows != null) {
+			#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
+				UIArrows.SetActive(false);
+			#endif
+		}
+
 		StartCoroutine (SetupLevel ());
 	}
 
