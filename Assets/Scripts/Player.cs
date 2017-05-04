@@ -31,7 +31,7 @@ public class Player : MovingObject {
 
 	private Consumable invisibilityPotion;
 	public float potionOfInvisilibityDuration;
-
+	public bool clickedOnSwitchSlot;
 
 	protected override void Start ()
 	{
@@ -82,24 +82,43 @@ public class Player : MovingObject {
 		}
 	}
 
+	// Reads all the interaction inputs if we're in editor, webplayer or standalone
+	private void GetInteractionInputs()
+	{
+		interactionKeyPressed = Input.GetKeyDown (KeyCode.X);
+	}
+
+	// Reads all the interaction inputs if we're on mobile
+	private void GetInteractionInputsMobile()
+	{
+		interactionKeyPressed = clickedOnSwitchSlot;
+	}
+
 	// Reads all inputs related to player interactions
 	private IEnumerator CheckInteractionInputs()
 	{
-		interactionKeyPressed = Input.GetKeyDown (KeyCode.X);
+		#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
+			GetInteractionInputs ();
+		#else
+			GetInteractionInputsMobile();
+		#endif
 
-		if (interactionKeyPressed) {
+		if (GameController.singleton.lightSwitchInputReady) {
+			string objectTag;
 
-			if (GameController.singleton.lightSwitchInputReady) {
-				string objectTag;
+			if (FindInteractiveObject (out objectTag)) {
+				if (objectTag == "LightSwitch") {
+					GameController.singleton.ShowSwitchSlotImage (true);
 
-				if (FindInteractiveObject (out objectTag)) {
-					if (objectTag == "LightSwitch") {
+					if (interactionKeyPressed) {
+						GameController.singleton.ShowSwitchSlotImage (false);
 						StartCoroutine(GameController.singleton.SwitchLights());
 					}
 				}
-
 			}
 		}
+
+		clickedOnSwitchSlot = false;
 
 		yield return null;
 	}
@@ -120,8 +139,13 @@ public class Player : MovingObject {
 	private IEnumerator CheckItemInputs()
 	{
 		if (laser.inputReady) {
+			
+			#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
+				GetItemInputs();
+			#else
+				GetItemInputsMobile ();
+			#endif
 
-			GetItemInputsMobile ();
 			if (laser.keyPressed && laser.charges > 0) {
 
 				laser.inputReady = false;
@@ -375,7 +399,6 @@ public class Player : MovingObject {
 		Destroy (other.gameObject);
 
 		invisibilityPotion.isActive = true;
-		GameController.singleton.ShowPotionSlotImage (true);
 		gameObject.GetComponent<SpriteRenderer> ().color = Color.black;
 
 		StartCoroutine (RemainInvisible (invisibilityPotion.duration));
@@ -385,7 +408,6 @@ public class Player : MovingObject {
 	{
 		gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
 		invisibilityPotion.isActive = false;
-		GameController.singleton.ShowPotionSlotImage (false);
 	}
 
 	// Make the player invisible for a given duration

@@ -13,7 +13,7 @@ public class GameController : MonoBehaviour {
 	private GameObject levelTutorialCanvas;
 	private static bool firstTimeInLevel = true;
 	private GameObject laserSlotImage;
-	private GameObject potionSlotImage;
+	private GameObject switchSlotImage;
 
 	[HideInInspector]
 	public bool onTutorial = false;
@@ -59,9 +59,9 @@ public class GameController : MonoBehaviour {
 		if (laserSlotImage != null) {
 			laserSlotImage.SetActive (false);
 		}			
-		potionSlotImage = GameObject.Find("PotionSlotImage");
-		if (potionSlotImage != null) {
-			potionSlotImage.SetActive (false);
+		switchSlotImage = GameObject.Find("SwitchSlotImage");
+		if (switchSlotImage != null) {
+			switchSlotImage.SetActive (false);
 		}
 			
 		StartCoroutine (SetupLevel ());
@@ -95,14 +95,18 @@ public class GameController : MonoBehaviour {
 		player.clickedOnLaserSlot = true;
 	}
 
-	// Show / Hide the potion slot image
-	public void ShowPotionSlotImage(bool show)
+	// Show / Hide the switch slot image
+	public void ShowSwitchSlotImage(bool show)
 	{
-		if (potionSlotImage != null) {
-			potionSlotImage.SetActive (show);
+		if (switchSlotImage != null) {
+			switchSlotImage.SetActive (show);
 		}
 	}
 
+	public void OnSwitchSlotClick()
+	{
+		player.clickedOnSwitchSlot = true;
+	}
 
 	public bool IsPlayerInvisible()
 	{

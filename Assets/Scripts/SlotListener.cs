@@ -9,4 +9,8 @@ public class SlotListener : MonoBehaviour {
 		GameController.singleton.OnLaserSlotClick ();
 	}
 
+	public void OnSwitchSlotPointerUp ()
+	{
+		GameController.singleton.OnSwitchSlotClick ();
+	}
 }
