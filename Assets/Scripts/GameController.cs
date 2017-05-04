@@ -12,8 +12,11 @@ public class GameController : MonoBehaviour {
 	private int level;
 	private GameObject levelTutorialCanvas;
 	private static bool firstTimeInLevel = true;
+
+	private GameObject itemSlots;
 	private GameObject laserSlotImage;
 	private GameObject switchSlotImage;
+	private GameObject slotKeys;
 
 	[HideInInspector]
 	public bool onTutorial = false;
@@ -55,6 +58,21 @@ public class GameController : MonoBehaviour {
 		}
 
 		// Item Slots references
+		itemSlots = GameObject.Find("ItemSlots");
+		if (itemSlots != null) {
+			// Mobile devices
+			#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
+				Vector3 position = itemSlots.transform.position;
+				itemSlots.transform.position = new Vector3(position.x + 1, position.y, position.z);
+			#endif
+		}
+		slotKeys = GameObject.Find ("SlotKeys");
+		if (slotKeys != null) {
+			// Mobile devices
+			#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
+				slotKeys.SetActive(false);
+			#endif
+		}
 		laserSlotImage = GameObject.Find("LaserSlotImage");
 		if (laserSlotImage != null) {
 			laserSlotImage.SetActive (false);

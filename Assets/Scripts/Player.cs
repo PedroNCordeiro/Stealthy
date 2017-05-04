@@ -112,9 +112,11 @@ public class Player : MovingObject {
 
 					if (interactionKeyPressed) {
 						GameController.singleton.ShowSwitchSlotImage (false);
-						StartCoroutine(GameController.singleton.SwitchLights());
+						StartCoroutine (GameController.singleton.SwitchLights ());
 					}
 				}
+			} else {
+				GameController.singleton.ShowSwitchSlotImage (false);
 			}
 		}
 

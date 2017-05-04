@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// This class adds functionalities to the UI events
 public class SlotListener : MonoBehaviour {
 
 	public void OnLaserSlotPointerUp ()
