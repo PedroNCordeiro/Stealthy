@@ -59,22 +59,26 @@ public class GameController : MonoBehaviour {
 			mainLight = mainLightObject.GetComponent<Light>() as Light;
 		}
 
+
 		// UI references
-		itemSlots = GameObject.Find("ItemSlots");
-		if (itemSlots != null) {
-			// Mobile devices
-			#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
+
+		// Mobile devices
+		#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
+			itemSlots = GameObject.Find("ItemSlots");
+			if (itemSlots != null) {			
 				Vector3 position = itemSlots.transform.position;
-				itemSlots.transform.position = new Vector3(position.x + 1, position.y, position.z);
-			#endif
-		}
-		slotKeys = GameObject.Find ("SlotKeys");
-		if (slotKeys != null) {
-			// Mobile devices
-			#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
-				slotKeys.SetActive(false);
-			#endif
-		}
+				itemSlots.transform.position = new Vector3(position.x + 1, position.y, position.z);			
+			}
+		#endif
+
+		// Mobile devices
+		#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
+			slotKeys = GameObject.Find ("SlotKeys");
+			if (slotKeys != null) {
+					slotKeys.SetActive(false);
+			}
+		#endif
+
 		laserSlotImage = GameObject.Find("LaserSlotImage");
 		if (laserSlotImage != null) {
 			laserSlotImage.SetActive (false);
@@ -84,13 +88,13 @@ public class GameController : MonoBehaviour {
 			switchSlotImage.SetActive (false);
 		}
 
-		UIArrows = GameObject.Find ("Arrows");
-		if (UIArrows != null) {
-			#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
-				UIArrows.SetActive(false);
-			#endif
-		}
-
+		#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
+			UIArrows = GameObject.Find ("Arrows");
+			if (UIArrows != null) {			
+					UIArrows.SetActive(false);
+			}
+		#endif
+	
 		StartCoroutine (SetupLevel ());
 	}
 
@@ -134,6 +138,25 @@ public class GameController : MonoBehaviour {
 	{
 		player.clickedOnSwitchSlot = true;
 	}
+
+
+	#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
+	// When the user triggers the PointerDown event
+	// The input parameter specifies which arrow was triggered
+	public void OnArrowPointerDown (int arrow)
+	{
+		player.arrowPointerDown [arrow] = true;
+	}
+	#endif
+
+	#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
+	// When the user triggers the PointerUp event
+	// The input parameter specifies which arrow was triggered
+	public void OnArrowPointerUp (int arrow)
+	{
+		player.arrowPointerUp [arrow] = true;
+	}
+	#endif
 
 	public bool IsPlayerInvisible()
 	{
@@ -244,7 +267,7 @@ public class GameController : MonoBehaviour {
 		
 	private IEnumerator SetupLevel()
 	{
-		yield return null;
+		yield return new WaitForSeconds (.1f);
 
 		// Level Specifications
 		GameObject levelSpecsObject = GameObject.FindGameObjectWithTag("LevelSpecifications");

@@ -33,6 +33,12 @@ public class Player : MovingObject {
 	public float potionOfInvisilibityDuration;
 	public bool clickedOnSwitchSlot;
 
+	#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
+		// The following two bool arrays represent the UP, DOWN, RIGHT and LEFT UI Arrows, respectively
+		public bool[] arrowPointerDown = new bool[4]; // Flags become true when user triggers the pointer down event
+		public bool[] arrowPointerUp = new bool[4]; // Flags become true when user triggers the pointer up event
+	#endif
+
 	protected override void Start ()
 	{
 		animator = GetComponent<Animator> ();
@@ -82,17 +88,19 @@ public class Player : MovingObject {
 		}
 	}
 
+	#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
 	// Reads all the interaction inputs if we're in editor, webplayer or standalone
 	private void GetInteractionInputs()
 	{
 		interactionKeyPressed = Input.GetKeyDown (KeyCode.X);
 	}
-
+	#else
 	// Reads all the interaction inputs if we're on mobile
 	private void GetInteractionInputsMobile()
 	{
 		interactionKeyPressed = clickedOnSwitchSlot;
 	}
+	#endif
 
 	// Reads all inputs related to player interactions
 	private IEnumerator CheckInteractionInputs()
@@ -125,17 +133,21 @@ public class Player : MovingObject {
 		yield return null;
 	}
 
+	#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
 	// Reads all the item inputs if we're in editor, webplayer or standalone
 	private void GetItemInputs ()
 	{
 		laser.keyPressed = Input.GetKeyDown (KeyCode.Z);
 	}
 
+	#else
+	!UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
 	// Reads all the item inputs if we're on a mobile build
 	private void GetItemInputsMobile()
 	{
 		laser.keyPressed = clickedOnLaserSlot;
 	}
+	#endif
 
 	// Reads all inputs related to player items
 	private IEnumerator CheckItemInputs()
@@ -166,6 +178,7 @@ public class Player : MovingObject {
 		yield return null;
 	}
 		
+	#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
 	// Reads all the player movement inputs if we're in editor, webplayer or standalone
 	private void GetMovementInputs (out int xDir, out int yDir)
 	{
@@ -211,35 +224,45 @@ public class Player : MovingObject {
 		}
 
 	}
-
+	#else
 	// Reads all the player movement inputs if we're on a mobile build
 	private void GetMovementInputsMobile (out int xDir, out int yDir)
 	{
-		if (Input.touchCount > 0) {
-			Touch myTouch = Input.touches [0];
+		xDir = horizontal;
+		yDir = vertical;
 
-			Vector3 touchV3 = myTouch.position;
-			touchV3 = Camera.main.ScreenToWorldPoint (touchV3);
-
-			Vector3 maxCameraCoords = new Vector3 (Camera.main.pixelWidth, Camera.main.pixelHeight, 0.0f);
-			maxCameraCoords = Camera.main.ScreenToWorldPoint (maxCameraCoords);
-
-			float xOffset = touchV3.x - Camera.main.gameObject.transform.position.x;
-			float yOffset = touchV3.y - Camera.main.gameObject.transform.position.y;
-
-			if (Mathf.Abs (xOffset) >= Mathf.Abs (yOffset)) {
-				xDir = xOffset >= 0 ? 1 : -1;
-				yDir = 0;
-			} else {
-				yDir = yOffset > 0 ? 1 : -1;
-				xDir = 0;
-			}
-		}
-		else {
+		// Pressed down UI Arrows 
+		if (arrowPointerDown[0]) { // Up
+			yDir = 1;
 			xDir = 0;
+		} else if (arrowPointerDown[1]) { // Down
+			yDir = -1;
+			xDir = 0;
+		} else if (arrowPointerDown[2]) { // Right
+			xDir = 1;
+			yDir = 0;
+		} else if (arrowPointerDown[3]) { // Left
+			xDir = -1;
 			yDir = 0;
 		}
+			
+		// Pressed up UI Arrows 
+		if (arrowPointerUp [0] || arrowPointerUp [1]) {
+			yDir = 0;
+		} else if (arrowPointerUp [2] || arrowPointerUp[3]) {
+			xDir = 0;
+		}
+
+
+		// Reset flags
+		for (int i = 0; i < arrowPointerDown.Length; i++) {
+			arrowPointerDown [i] = false;
+		}
+		for (int i = 0; i < arrowPointerUp.Length; i++) {
+			arrowPointerUp [i] = false;
+		}
 	}
+	#endif
 
 	// Reads all player movement inputs
 	private IEnumerator CheckMovementInputs()
