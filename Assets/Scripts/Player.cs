@@ -33,11 +33,9 @@ public class Player : MovingObject {
 	public float potionOfInvisilibityDuration;
 	public bool clickedOnSwitchSlot;
 
-	#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
-		// The following two bool arrays represent the UP, DOWN, RIGHT and LEFT UI Arrows, respectively
-		public bool[] arrowPointerDown = new bool[4]; // Flags become true when user triggers the pointer down event
-		public bool[] arrowPointerUp = new bool[4]; // Flags become true when user triggers the pointer up event
-	#endif
+	// The following two bool arrays represent the UP, DOWN, RIGHT and LEFT UI Arrows, respectively
+	public bool[] arrowPointerDown = new bool[4]; // Flags become true when user triggers the pointer down event
+	public bool[] arrowPointerUp = new bool[4]; // Flags become true when user triggers the pointer up event
 
 	protected override void Start ()
 	{
@@ -141,7 +139,6 @@ public class Player : MovingObject {
 	}
 
 	#else
-	!UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
 	// Reads all the item inputs if we're on a mobile build
 	private void GetItemInputsMobile()
 	{

@@ -140,23 +140,19 @@ public class GameController : MonoBehaviour {
 	}
 
 
-	#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
 	// When the user triggers the PointerDown event
 	// The input parameter specifies which arrow was triggered
 	public void OnArrowPointerDown (int arrow)
 	{
 		player.arrowPointerDown [arrow] = true;
 	}
-	#endif
 
-	#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
 	// When the user triggers the PointerUp event
 	// The input parameter specifies which arrow was triggered
 	public void OnArrowPointerUp (int arrow)
 	{
 		player.arrowPointerUp [arrow] = true;
 	}
-	#endif
 
 	public bool IsPlayerInvisible()
 	{
