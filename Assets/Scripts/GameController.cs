@@ -13,11 +13,6 @@ public class GameController : MonoBehaviour {
 	private GameObject levelTutorialCanvas;
 	private static bool firstTimeInLevel = true;
 
-	// UI references
-	private GameObject itemSlots;
-	private GameObject laserSlotImage;
-	private GameObject switchSlotImage;
-	private GameObject slotKeys;
 	private GameObject UIArrows;
 
 	[HideInInspector]
@@ -35,7 +30,9 @@ public class GameController : MonoBehaviour {
 
 		DontDestroyOnLoad (gameObject);
 
-		FirstSetup ();
+		if (this == singleton) {
+			FirstSetup ();
+		}
 	}
 		
 	void Update()
@@ -59,35 +56,7 @@ public class GameController : MonoBehaviour {
 			mainLight = mainLightObject.GetComponent<Light>() as Light;
 		}
 
-
-		// UI references
-
-		// Mobile devices
-		#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
-			itemSlots = GameObject.Find("ItemSlots");
-			if (itemSlots != null) {			
-				Vector3 position = itemSlots.transform.position;
-				itemSlots.transform.position = new Vector3(position.x + 1, position.y, position.z);			
-			}
-		#endif
-
-		// Mobile devices
-		#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
-			slotKeys = GameObject.Find ("SlotKeys");
-			if (slotKeys != null) {
-					slotKeys.SetActive(false);
-			}
-		#endif
-
-		laserSlotImage = GameObject.Find("LaserSlotImage");
-		if (laserSlotImage != null) {
-			laserSlotImage.SetActive (false);
-		}			
-		switchSlotImage = GameObject.Find("SwitchSlotImage");
-		if (switchSlotImage != null) {
-			switchSlotImage.SetActive (false);
-		}
-
+		// UI References
 		#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
 			UIArrows = GameObject.Find ("Arrows");
 			if (UIArrows != null) {			
@@ -116,8 +85,8 @@ public class GameController : MonoBehaviour {
 	// Show / Hide the laser slot image
 	public void ShowLaserSlotImage(bool show)
 	{
-		if (laserSlotImage != null) {
-			laserSlotImage.SetActive (show);
+		if (levelSpecs != null) {
+			levelSpecs.ShowLaserSlotImage (show);
 		}
 	}
 		
@@ -126,11 +95,19 @@ public class GameController : MonoBehaviour {
 		player.clickedOnLaserSlot = true;
 	}
 
+	public bool isSwitchSlotImageVisible()
+	{
+		if (levelSpecs != null) {
+			return levelSpecs.isSwitchSlotImageVisible ();
+		}
+		return false;
+	}
+
 	// Show / Hide the switch slot image
 	public void ShowSwitchSlotImage(bool show)
 	{
-		if (switchSlotImage != null) {
-			switchSlotImage.SetActive (show);
+		if (levelSpecs != null) {
+			levelSpecs.ShowSwitchSlotImage (show);
 		}
 	}
 

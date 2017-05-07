@@ -85,20 +85,18 @@ public class Player : MovingObject {
 			GameController.singleton.ShowLaserSlotImage (true);
 		}
 	}
-
-	#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
+		
 	// Reads all the interaction inputs if we're in editor, webplayer or standalone
 	private void GetInteractionInputs()
 	{
 		interactionKeyPressed = Input.GetKeyDown (KeyCode.X);
 	}
-	#else
+
 	// Reads all the interaction inputs if we're on mobile
 	private void GetInteractionInputsMobile()
 	{
 		interactionKeyPressed = clickedOnSwitchSlot;
 	}
-	#endif
 
 	// Reads all inputs related to player interactions
 	private IEnumerator CheckInteractionInputs()
@@ -121,7 +119,7 @@ public class Player : MovingObject {
 						StartCoroutine (GameController.singleton.SwitchLights ());
 					}
 				}
-			} else {
+			} else if (GameController.singleton.isSwitchSlotImageVisible()) {
 				GameController.singleton.ShowSwitchSlotImage (false);
 			}
 		}
@@ -130,21 +128,18 @@ public class Player : MovingObject {
 
 		yield return null;
 	}
-
-	#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
+		
 	// Reads all the item inputs if we're in editor, webplayer or standalone
 	private void GetItemInputs ()
 	{
 		laser.keyPressed = Input.GetKeyDown (KeyCode.Z);
 	}
-
-	#else
+		
 	// Reads all the item inputs if we're on a mobile build
 	private void GetItemInputsMobile()
 	{
 		laser.keyPressed = clickedOnLaserSlot;
 	}
-	#endif
 
 	// Reads all inputs related to player items
 	private IEnumerator CheckItemInputs()
@@ -175,7 +170,6 @@ public class Player : MovingObject {
 		yield return null;
 	}
 		
-	#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
 	// Reads all the player movement inputs if we're in editor, webplayer or standalone
 	private void GetMovementInputs (out int xDir, out int yDir)
 	{
@@ -221,7 +215,7 @@ public class Player : MovingObject {
 		}
 
 	}
-	#else
+
 	// Reads all the player movement inputs if we're on a mobile build
 	private void GetMovementInputsMobile (out int xDir, out int yDir)
 	{
@@ -259,7 +253,6 @@ public class Player : MovingObject {
 			arrowPointerUp [i] = false;
 		}
 	}
-	#endif
 
 	// Reads all player movement inputs
 	private IEnumerator CheckMovementInputs()
