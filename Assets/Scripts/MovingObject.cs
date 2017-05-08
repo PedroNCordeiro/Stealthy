@@ -125,12 +125,18 @@ public class MovingObject : MonoBehaviour {
 		hit = Physics2D.Linecast (start, end, blockingLayer);
 		boxCollider.enabled = true;
 
-		if (hit.transform == null) {
-			SmoothMovementCoRoutine =  SmoothMovement (end);
-			SmoothMovementBackCoRoutine = SmoothMovementBack (start);
-			StartCoroutine (SmoothMovementCoRoutine);
+		// Sometimes the player goes to the next level and all enemies in the scene are destroyed
+		// So we need to test to see if this enemy still exists before trying to move it
+		if (gameObject != null) {
+				
+			if (hit.transform == null) {
+			
+				SmoothMovementCoRoutine = SmoothMovement (end);
+				SmoothMovementBackCoRoutine = SmoothMovementBack (start);
+				StartCoroutine (SmoothMovementCoRoutine);
 
-			return true;
+				return true;
+			}
 		}
 		endedMove = true;
 		return false;

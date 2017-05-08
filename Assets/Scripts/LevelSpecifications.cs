@@ -21,15 +21,6 @@ public class LevelSpecifications : MonoBehaviour {
 
 		// Mobile devices
 		#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
-		itemSlots = GameObject.Find("ItemSlots");
-		if (itemSlots != null) {			
-			Vector3 position = itemSlots.transform.position;
-			itemSlots.transform.position = new Vector3(position.x + 1, position.y, position.z);		
-		}
-		#endif
-
-		// Mobile devices
-		#if !UNITY_STANDALONE && !UNITY_WEBPLAYER && !UNITY_EDITOR
 		slotKeys = GameObject.Find ("SlotKeys");
 		if (slotKeys != null) {
 		slotKeys.SetActive(false);

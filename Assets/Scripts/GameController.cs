@@ -265,7 +265,7 @@ public class GameController : MonoBehaviour {
 	public void FinishLevel()
 	{	
 		firstTimeInLevel = true;
-		
+
 		enemies.Clear ();
 
 		level = SceneManager.GetActiveScene().buildIndex + 1;

@@ -70,7 +70,7 @@ public class Enemy : MovingObject {
 		RaycastHit2D hit;
 		int i = 0;
 		while (i < path.Length) {
-			
+
 			// Sometimes the player goes to the next level and all enemies in the scene are destroyed
 			// So we need to test to see if this enemy still exists before trying to move it
 			if (gameObject == null) {
