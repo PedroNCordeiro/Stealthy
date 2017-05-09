@@ -133,7 +133,7 @@ public class GameController : MonoBehaviour {
 
 	public bool IsPlayerInvisible()
 	{
-		return player.isInvisible ();
+		return player.isPlayerInvisible ();
 	}
 
 	private void MoveEnemies()

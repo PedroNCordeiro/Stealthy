@@ -22,15 +22,8 @@ public class Player : MovingObject {
 	public float laserInputDelay;
 	public bool clickedOnLaserSlot;
 
+	private bool isInvisible = false;
 
-	public struct Consumable {
-		public float timeLeft;
-		public float duration;
-		public bool isActive;
-	}
-
-	private Consumable invisibilityPotion;
-	public float potionOfInvisilibityDuration;
 	public bool clickedOnSwitchSlot;
 
 	// The following two bool arrays represent the UP, DOWN, RIGHT and LEFT UI Arrows, respectively
@@ -49,9 +42,6 @@ public class Player : MovingObject {
 		laser.inputReady = true;
 		laser.inputDelay = laserInputDelay;
 
-		invisibilityPotion.isActive = false;
-		invisibilityPotion.duration = potionOfInvisilibityDuration;
-
 		ChangeSpriteDirection ((int)direction.x, (int)direction.y);
 	}
 
@@ -67,7 +57,7 @@ public class Player : MovingObject {
 		base.OnTriggerEnter2D(other);
 
 		// Check if GameOver
-		if (other.gameObject.layer == LayerMask.NameToLayer ("DangerFloor") && !invisibilityPotion.isActive) {
+		if (other.gameObject.layer == LayerMask.NameToLayer ("DangerFloor") && !isInvisible) {
 			GameController.singleton.GameOver ();
 		}
 
@@ -76,7 +66,8 @@ public class Player : MovingObject {
 		}
 
 		else if (other.gameObject.tag == "Potion") {
-			StartInvisibility (other);
+			Potion potion = other.transform.GetComponent<Potion> () as Potion;
+			potion.StartEffect (gameObject);
 		}
 
 		else if (other.gameObject.tag == "Laser") {
@@ -408,39 +399,16 @@ public class Player : MovingObject {
 		objectTag = "None";
 		return false;
 	}
-
-	private void StartInvisibility(Collider2D other)
+				
+	public void SetInvisibility(bool invisible)
 	{
-		Destroy (other.gameObject);
-
-		invisibilityPotion.isActive = true;
-		gameObject.GetComponent<SpriteRenderer> ().color = Color.black;
-
-		StartCoroutine (RemainInvisible (invisibilityPotion.duration));
-	}
-
-	private void EndInvisibility()
-	{
-		gameObject.GetComponent<SpriteRenderer> ().color = Color.white;
-		invisibilityPotion.isActive = false;
-	}
-
-	// Make the player invisible for a given duration
-	private IEnumerator RemainInvisible(float duration)
-	{
-		invisibilityPotion.timeLeft = duration;
-		while (invisibilityPotion.timeLeft > float.Epsilon) {
-			invisibilityPotion.timeLeft -= Time.deltaTime;
-			yield return null;
-		}
-
-		EndInvisibility ();
+		isInvisible = invisible;
 	}
 
 	// Checks if the player is invisible
-	public bool isInvisible()
+	public bool isPlayerInvisible()
 	{
-		return invisibilityPotion.isActive;
+		return isInvisible;
 	}
 
 	protected override void Fall()
