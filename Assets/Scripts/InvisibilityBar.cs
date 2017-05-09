@@ -6,34 +6,56 @@ public class InvisibilityBar : MonoBehaviour {
 
 	private Image foregroundImage;
 
-	public float Value
+	private float fillAmount
 	{
-		get 
-		{
-			if(foregroundImage != null)
-				return (int)(foregroundImage.fillAmount*100);	
-			else
-				return 0;	
+		get {
+			if (foregroundImage != null) {
+				return foregroundImage.fillAmount;
+			} else {
+				return 0f;
+			}
 		}
-		set 
-		{
-			if(foregroundImage != null)
-				foregroundImage.fillAmount = value/100f;	
-		} 
+
+		set {
+			if (foregroundImage != null) {
+				foregroundImage.fillAmount = value;
+			}
+		}
 	}
 
 	void Start () {
-		foregroundImage = gameObject.GetComponent<Image>();		
-		Value = 100;
+		foregroundImage = gameObject.GetComponent<Image>();	
+		fillAmount = 1f;
 	}	
-
-	void Update()
+		
+	public void ShowInvisibilityBar()
 	{
-		//Reduce fill amount over 30 seconds
-		Value -= 2 * Time.deltaTime;
-
-		if (Value == 50) {
-			gameObject.SetActive (false);
-		}
+		foregroundImage.enabled = true;
 	}
+
+	public void HideInvisibilityBar()
+	{
+		foregroundImage.enabled = false;
+	}
+
+	public IEnumerator StartProgress (float potionDuration)
+	{
+		foregroundImage.enabled = true;
+		float inversePotionDuration = 1.0f / potionDuration;
+
+		while (fillAmount > float.Epsilon) {
+			
+			// Reduce fill amount over <potionDuration> seconds
+			fillAmount -= inversePotionDuration * Time.deltaTime;
+			yield return null;
+		}
+
+		foregroundImage.enabled = false;
+	}
+
+	public void ReduceBar (float reduceAmount)
+	{
+		fillAmount -= reduceAmount;
+	}
+
 }

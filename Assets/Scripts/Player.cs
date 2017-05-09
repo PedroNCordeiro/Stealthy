@@ -23,6 +23,8 @@ public class Player : MovingObject {
 	public bool clickedOnLaserSlot;
 
 	private bool isInvisible = false;
+	private GameObject invisibilityBar;
+	private InvisibilityBar invisibilityBarScript;
 
 	public bool clickedOnSwitchSlot;
 
@@ -43,6 +45,11 @@ public class Player : MovingObject {
 		laser.inputDelay = laserInputDelay;
 
 		ChangeSpriteDirection ((int)direction.x, (int)direction.y);
+
+		invisibilityBar = GameObject.Find ("InvisibilityBar");
+		if (invisibilityBar != null) {
+			invisibilityBarScript = invisibilityBar.GetComponent<InvisibilityBar> () as InvisibilityBar;
+		}
 	}
 
 	// Update is called once per frame
@@ -67,7 +74,7 @@ public class Player : MovingObject {
 
 		else if (other.gameObject.tag == "Potion") {
 			Potion potion = other.transform.GetComponent<Potion> () as Potion;
-			potion.StartEffect (gameObject);
+			potion.StartEffect ();
 		}
 
 		else if (other.gameObject.tag == "Laser") {
@@ -399,7 +406,22 @@ public class Player : MovingObject {
 		objectTag = "None";
 		return false;
 	}
-				
+
+	public void ShowInvisibilityBar ()
+	{
+		invisibilityBarScript.ShowInvisibilityBar ();
+	}
+
+	public void HideInvisibilityBar ()
+	{
+		invisibilityBarScript.HideInvisibilityBar ();
+	}
+
+	public void reduceInvisibilityBar (float reduceAmount)
+	{
+		invisibilityBarScript.ReduceBar (reduceAmount);
+	}
+
 	public void SetInvisibility(bool invisible)
 	{
 		isInvisible = invisible;
